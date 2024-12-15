@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { LoginModal } from '../Auth/LoginModal';
 
 const LandingPage = () => {
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   const handleEnter = () => {
-    window.location.href = '/tribute';
+    setIsLoginModalOpen(true);
   };
 
   return (
@@ -27,6 +30,10 @@ const LandingPage = () => {
         >
           Enter Celebration
         </button>
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onRequestClose={() => setIsLoginModalOpen(false)}
+        />
       </div>
     </div>
   );

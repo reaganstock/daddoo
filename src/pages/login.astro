@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { LoginForm } from '../components/Auth/LoginForm';
+---
+
+<Layout title="Login">
+  <main class="min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8 p-6 bg-white rounded-lg shadow-md">
+      <h2 class="text-3xl font-bold text-center">Sign in to your account</h2>
+      <LoginForm client:load />
+    </div>
+  </main>
+</Layout>

@@ -29,6 +29,7 @@ const AddFunFactButton = () => {
           </span>
         </button>
       </div>
+
       <AddFunFactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );

@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import ReactModal from 'react-modal';
-import SignatureCanvas from 'react-signature-canvas';
-import { v4 as uuidv4 } from 'uuid';
 import useTributeStore from '../../store/tributeStore';
+import { supabase } from '../../lib/supabase';
+import { toast } from 'react-hot-toast';
 
 const AddTributeModal = ({ isOpen, onClose }) => {
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [author, setAuthor] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -13,6 +14,14 @@ const AddTributeModal = ({ isOpen, onClose }) => {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const addTribute = useTributeStore((state) => state.addTribute);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  React.useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUser(user);
+    });
+  }, []);
 
   const startRecording = async () => {
     try {
@@ -44,30 +53,59 @@ const AddTributeModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim() || !author.trim()) return;
-
-    const signature = signaturePadRef.current?.getTrimmedCanvas().toDataURL();
-    const audioUrl = audioBlob ? URL.createObjectURL(audioBlob) : null;
-
-    const tribute = {
-      id: uuidv4(),
-      content: content.trim(),
-      author: author.trim(),
-      signature,
-      audio: audioUrl,
-      date: new Date().toISOString()
-    };
-
-    addTribute(tribute);
-    setContent('');
-    setAuthor('');
-    setAudioBlob(null);
-    if (signaturePadRef.current) {
-      signaturePadRef.current.clear();
+    
+    if (!title.trim()) {
+      toast.error('Please enter a title');
+      return;
     }
-    onClose();
+
+    if (!content.trim()) {
+      toast.error('Please enter your message');
+      return;
+    }
+
+    if (!author.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const signature = signaturePadRef.current?.getTrimmedCanvas().toDataURL();
+      const audioUrl = audioBlob ? URL.createObjectURL(audioBlob) : null;
+
+      const tribute = {
+        title: title.trim(),
+        content: content.trim(),
+        author: author.trim(),
+        signature,
+        audio: audioUrl,
+        created_at: new Date().toISOString(),
+        user_email: currentUser?.email
+      };
+
+      const result = await addTribute(tribute);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to add tribute');
+      }
+
+      toast.success('Tribute added successfully');
+      setTitle('');
+      setContent('');
+      setAuthor('');
+      setAudioBlob(null);
+      if (signaturePadRef.current) {
+        signaturePadRef.current.clear();
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error adding tribute:', error);
+      toast.error(error.message || 'Failed to add tribute');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -79,6 +117,18 @@ const AddTributeModal = ({ isOpen, onClose }) => {
     >
       <h2 className="text-4xl font-bold text-white mb-8 text-center">Add a Birthday Tribute</h2>
       <form onSubmit={handleSubmit} className="space-y-8">
+        <div>
+          <label className="block text-white text-xl mb-3">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
+            placeholder="Enter a title for your tribute"
+            required
+          />
+        </div>
+
         <div>
           <label className="block text-white text-xl mb-3">Your Name</label>
           <input
@@ -92,37 +142,38 @@ const AddTributeModal = ({ isOpen, onClose }) => {
 
         <div>
           <label className="block text-white text-xl mb-3">Your Message</label>
-          <div className="space-y-4">
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
-              rows="8"
-              required
-            />
-            
-            <div className="flex items-center gap-4">
-              {!isRecording ? (
-                <button
-                  type="button"
-                  onClick={startRecording}
-                  className="px-4 py-2 bg-gray-800/50 rounded-lg text-white hover:bg-gray-700/50"
-                >
-                  🎤 Add Voice Message
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={stopRecording}
-                  className="px-4 py-2 bg-red-600/50 rounded-lg text-white hover:bg-red-700/50 animate-pulse"
-                >
-                  ⏹️ Stop Recording
-                </button>
-              )}
-              {audioBlob && (
-                <audio src={URL.createObjectURL(audioBlob)} controls className="flex-1 bg-transparent" />
-              )}
-            </div>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
+            rows="8"
+            placeholder="Write your birthday message here..."
+            required
+          />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            {!isRecording ? (
+              <button
+                type="button"
+                onClick={startRecording}
+                className="px-4 py-2 bg-gray-800/50 rounded-lg text-white hover:bg-gray-700/50"
+              >
+                🎤 Add Voice Message
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={stopRecording}
+                className="px-4 py-2 bg-red-600/50 rounded-lg text-white hover:bg-red-700/50 animate-pulse"
+              >
+                ⏹️ Stop Recording
+              </button>
+            )}
+            {audioBlob && (
+              <audio src={URL.createObjectURL(audioBlob)} controls className="flex-1 bg-transparent" />
+            )}
           </div>
         </div>
 
@@ -150,20 +201,21 @@ const AddTributeModal = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="flex justify-end gap-6 pt-4">
+        <div className="flex justify-end space-x-4">
           <button
             type="button"
             onClick={onClose}
-            className="px-8 py-3 bg-gray-600 rounded-lg text-white text-lg hover:bg-gray-700"
+            className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            disabled={!content.trim() || !author.trim()}
-            className="px-8 py-3 bg-purple-600 rounded-lg text-white text-lg hover:bg-purple-700 disabled:opacity-50"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
+            disabled={isLoading}
           >
-            Add Tribute
+            {isLoading ? 'Adding...' : 'Add Tribute'}
           </button>
         </div>
       </form>

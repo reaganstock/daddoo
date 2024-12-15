@@ -1,7 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header';
-import SectionNav from '../components/navigation/SectionNav';
 import HeroSection from '../components/HeroSection.astro';
 import NormQuote from '../components/NormQuote.astro';
 import BirthdayCountdown from '../components/BirthdayCountdown.astro';
@@ -9,7 +7,7 @@ import TributeSection from '../components/tributes/TributeSection';
 import MemorySection from '../components/memories/MemorySection';
 import FunFactsContainer from '../components/fun-facts/FunFactsContainer';
 import MusicPlayer from '../components/MusicPlayer.astro';
-import { ProtectedRoute } from '../components/Auth/ProtectedRoute';
+import PreviewCheck from '../components/Auth/PreviewCheck.tsx';
 
 const memories = [
   {
@@ -48,30 +46,40 @@ const memories = [
     date: new Date().toISOString()
   }
 ];
+
 ---
 
-<Layout title="Happy Birthday to this Guy!">
-  <main class="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
-    <Header client:load />
-    <HeroSection />
-    <div class="container mx-auto px-4 py-12 max-w-7xl">
-      <NormQuote />
-      <BirthdayCountdown />
-      <SectionNav client:load />
-      <ProtectedRoute client:load>
-        <div id="tributes" class="section-content block">
-          <TributeSection client:load />
+<Layout title="Dad's Birthday - Preview">
+  <PreviewCheck client:load>
+    <main class="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
+      <header class="bg-transparent py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+          <h1 class="text-white text-2xl font-bold">Dad's Birthday - Preview</h1>
+          <a href="/" class="text-white hover:text-red-300 transition-colors">Exit Preview</a>
         </div>
-        <div id="memories" class="section-content block">
-          <MemorySection client:load defaultMemories={memories} />
+      </header>
+
+      <HeroSection />
+      <div class="container mx-auto px-4 py-12 max-w-7xl">
+        <NormQuote />
+        <BirthdayCountdown />
+        
+        <!-- Show all sections by default -->
+        <div class="space-y-12">
+          <div class="section-content">
+            <TributeSection client:load isPreview={true} />
+          </div>
+          <div class="section-content">
+            <MemorySection client:load defaultMemories={memories} isPreview={true} />
+          </div>
+          <div class="section-content">
+            <FunFactsContainer client:load isPreview={true} />
+          </div>
         </div>
-        <div id="funfacts" class="section-content block">
-          <FunFactsContainer client:load />
-        </div>
-      </ProtectedRoute>
-    </div>
-    <MusicPlayer />
-  </main>
+      </div>
+      <MusicPlayer />
+    </main>
+  </PreviewCheck>
 </Layout>
 
 <style>
@@ -79,17 +87,4 @@ const memories = [
     opacity: 1;
     transition: opacity 0.3s ease-in-out;
   }
-  
-  .section-content.hidden {
-    display: none;
-    opacity: 0;
-  }
 </style>
-
-<script>
-  // Update navigation to show/hide sections
-  document.addEventListener('DOMContentLoaded', () => {
-    const sections = document.querySelectorAll('.section-content');
-    sections.forEach(section => section.classList.remove('hidden'));
-  });
-</script>

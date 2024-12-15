@@ -2,7 +2,7 @@ import React from 'react';
 import useFunFactsStore from '../../store/funFactsStore';
 import LegacyCard from './LegacyCard';
 
-const FunFactsGrid = () => {
+const FunFactsGrid = ({ isPreview }) => {
   const funFacts = useFunFactsStore((state) => state.funFacts);
 
   const defaultFacts = [
@@ -23,11 +23,11 @@ const FunFactsGrid = () => {
   return (
     <div className="space-y-8">
       {defaultFacts.map((fact) => (
-        <LegacyCard key={fact.id} {...fact} />
+        <LegacyCard key={fact.id} {...fact} preview={isPreview} />
       ))}
       
       {funFacts.map((fact) => (
-        <LegacyCard key={fact.id} {...fact} />
+        <LegacyCard key={fact.id} {...fact} preview={isPreview} />
       ))}
     </div>
   );

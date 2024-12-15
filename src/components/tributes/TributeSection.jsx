@@ -1,34 +1,61 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TributeCard from './TributeCard';
 import AddTributeButton from './AddTributeButton';
 import useTributeStore from '../../store/tributeStore';
 import { useAnimation } from '../../hooks/useAnimation';
 import Section from '../ui/Section';
+import { supabase } from '../../lib/supabase';
 
-const TributeSection = () => {
-  const tributes = useTributeStore((state) => state.tributes);
+const TributeSection = ({ isPreview = false }) => {
+  const { tributes, loading, error, fetchTributes } = useTributeStore();
+  const [currentUser, setCurrentUser] = React.useState(null);
   useAnimation();
 
-  const defaultTributes = [
-    {
-      id: 'default-tribute',
-      content: `Hey daddoo, it's your son here...`,
-      author: "Reagan",
-      date: "2024-12-06T00:00:00.000Z"
+  useEffect(() => {
+    fetchTributes();
+    
+    if (!isPreview) {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        setCurrentUser(user);
+      });
     }
-  ];
+  }, [fetchTributes, isPreview]);
+
+  if (loading) {
+    return (
+      <Section id="tributes" title="Birthday Tributes">
+        <div className="flex justify-center items-center py-12">
+          <div className="text-white">Loading tributes...</div>
+        </div>
+      </Section>
+    );
+  }
+
+  if (error) {
+    return (
+      <Section id="tributes" title="Birthday Tributes">
+        <div className="text-red-400">Error loading tributes: {error}</div>
+      </Section>
+    );
+  }
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="space-y-8">
-        {defaultTributes.map(tribute => (
-          <TributeCard key={tribute.id} {...tribute} />
+      <div className="space-y-12 max-w-4xl mx-auto">
+        {tributes.map((tribute) => (
+          <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
+            <TributeCard
+              tribute={tribute}
+              isEditable={!isPreview && currentUser?.id === tribute.user_id}
+            />
+          </div>
         ))}
-        {tributes.map(tribute => (
-          <TributeCard key={tribute.id} {...tribute} />
-        ))}
-        <AddTributeButton />
       </div>
+      {!isPreview && currentUser && (
+        <div className="mt-12">
+          <AddTributeButton />
+        </div>
+      )}
     </Section>
   );
 };
