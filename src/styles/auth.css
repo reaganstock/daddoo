@@ -1,0 +1,44 @@
+.ReactModal__Overlay {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.auth-button {
+  @apply w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg transition-colors;
+}
+
+.auth-button-google {
+  @apply bg-white text-gray-800 hover:bg-gray-100;
+}
+
+.auth-button-apple {
+  @apply bg-black text-white hover:bg-gray-900;
+}
+
+.auth-input {
+  @apply mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+}
+
+.auth-submit {
+  @apply w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50;
+}
+
+.auth-message {
+  @apply mt-4 text-sm text-center;
+}
+
+.auth-message-error {
+  @apply text-red-400;
+}
+
+.auth-message-success {
+  @apply text-green-400;
+}

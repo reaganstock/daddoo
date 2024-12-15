@@ -1,0 +1,78 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header';
+import SectionNav from '../components/navigation/SectionNav';
+import HeroSection from '../components/HeroSection.astro';
+import NormQuote from '../components/NormQuote.astro';
+import BirthdayCountdown from '../components/BirthdayCountdown.astro';
+import TributeSection from '../components/tributes/TributeSection';
+import MemorySection from '../components/memories/MemorySection';
+import FunFactsContainer from '../components/fun-facts/FunFactsContainer';
+import MusicPlayer from '../components/MusicPlayer.astro';
+
+const memories = [
+  {
+    id: 'evening',
+    image: "https://imgur.com/m9dIxdM.jpg",
+    title: "Evening Together",
+    description: "A wonderful evening spent with family",
+    date: new Date().toISOString()
+  },
+  {
+    id: 'dining',
+    image: "https://imgur.com/YEqEAbZ.jpg",
+    title: "Fine Dining & Family",
+    description: "Creating memories over delicious meals",
+    date: new Date().toISOString()
+  },
+  {
+    id: 'christmas',
+    image: "https://imgur.com/NDEzhu6.jpg",
+    title: "Christmas Spirit",
+    description: "Celebrating the holiday season together",
+    date: new Date().toISOString()
+  },
+  {
+    id: 'notre-dame',
+    image: "https://imgur.com/wUln2kq.jpg",
+    title: "Notre Dame Pride",
+    description: "Sharing our love for the Fighting Irish",
+    date: new Date().toISOString()
+  },
+  {
+    id: 'legends',
+    image: "https://imgur.com/ijHTR0s.jpg",
+    title: "Legends Legacy",
+    description: "Making memories at our favorite spot",
+    date: new Date().toISOString()
+  }
+];
+---
+
+<Layout title="Happy Birthday to this Guy!">
+  <main class="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
+    <Header client:load />
+    <HeroSection />
+    <div class="container mx-auto px-4 py-12 max-w-7xl">
+      <NormQuote />
+      <BirthdayCountdown />
+      <SectionNav client:load />
+      <div id="tributes" class="section-content">
+        <TributeSection client:load />
+      </div>
+      <div id="memories" class="section-content">
+        <MemorySection client:load defaultMemories={memories} />
+      </div>
+      <div id="funfacts" class="section-content">
+        <FunFactsContainer client:load />
+      </div>
+    </div>
+  </main>
+  <MusicPlayer />
+</Layout>
+
+<style>
+  .section-content {
+    transition: opacity 0.3s ease-in-out;
+  }
+</style>

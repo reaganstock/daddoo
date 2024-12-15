@@ -1,0 +1,12 @@
+---
+interface Props {
+  quote: string;
+  context?: string;
+}
+
+const { quote, context } = Astro.props;
+---
+<div class="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-6 transform hover:scale-105 transition-all duration-300" data-aos="fade-up">
+  <blockquote class="text-gray-200 italic mb-4">"{quote}"</blockquote>
+  {context && <p class="text-sm text-blue-200 text-right">- Dad, {context}</p>}
+</div>

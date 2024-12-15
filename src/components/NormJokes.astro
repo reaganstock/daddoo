@@ -1,0 +1,66 @@
+---
+const normJokes = [
+  {
+    title: "Life is Fantastic",
+    content: `"You know, life is fantastic. You're lucky if you're lucky enough to be alive when you think about it. Your mother had to have sex with your father, your grandparents had to have sex, great great grandparents... they all had to have sex. It's lucky you're alive! It's amazing and I'm so happy every day because it's just a fluke. There's so many more people that never got to be alive. If you do the math, it's the greatest gig in the world being alive. You get to eat at Denny's, wear a hat, get a haircut!"`
+  },
+  {
+    title: "Uncle Hector's Tale",
+    content: `"My uncle Hector, he was a great man. During the Depression, he walked into a mine one day with his lunch box and work boots. He said 'Sir, I want a job.' They said 'We have no jobs.' He said 'Well, 500 people work here at McIntyre mine. I don't think there's 500 men better than I. Matter of fact, I don't think there's 200 men better than I. I think you'd be strapped to find 100 men better than I.' And by golly, he got the job!"`
+  },
+  {
+    title: "The Psychiatrist Story",
+    content: `"I had a psychiatrist once, and I couldn't think of any problems I had. Just talking about work stuff, you know. So I give the guy $200 and leave. Then I'm reading the paper - the guy kills himself! And then I was reading about his horrible life, he was on all these drugs... And here I am, the last week of his life, he's listening to my boring problems like 'I don't think he respects me...' while he's got real issues!"`
+  },
+  {
+    title: "The Polish Sausage",
+    content: `"I go in and order a Polish sausage from this guy, and he says 'Oh, you must be Polish.' I said 'Come on man, think about what you're saying. If somebody came in here and ordered French toast, would you think he was French? If they ordered a Belgian waffle, would you consider that guy Belgian? If a guy came in and ordered a German bratwurst, would you consider that fellow to be German?' And the guy says to me, 'Well first of all, it's a hardware store.'"`
+  },
+  {
+    title: "The View Story",
+    content: `"One time they wanted me to go on The View. I was up all night gambling, and the producer kept calling with ideas. He's like 'Hey, why don't you come out with a red wig on?' I'm like 'Why would I do that?' Then halfway through the show, my cell phone was supposed to ring... It was all crazy. So I go on The View, completely exhausted, and somehow end up talking about Clinton and Vince Foster. Barbara Walters was not pleased."`
+  }
+];
+---
+
+<div class="space-y-8">
+  {normJokes.map(joke => (
+    <div class="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-6 joke-card transform hover:scale-105 transition-all duration-300" data-aos="fade-up">
+      <h3 class="text-2xl font-bold text-white mb-4">{joke.title}</h3>
+      <div class="joke-content opacity-0 transform translate-y-4 transition-all duration-300">
+        <p class="text-lg text-gray-200 whitespace-pre-line">{joke.content}</p>
+      </div>
+      <button class="mt-4 px-4 py-2 bg-purple-500/30 hover:bg-purple-500/50 rounded-lg text-white transition-all duration-300 reveal-btn">
+        Show Story
+      </button>
+    </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll('.joke-card').forEach(card => {
+    const revealBtn = card.querySelector('.reveal-btn');
+    const content = card.querySelector('.joke-content');
+    
+    revealBtn?.addEventListener('click', () => {
+      content?.classList.toggle('opacity-0');
+      content?.classList.toggle('translate-y-4');
+      if (revealBtn.textContent === 'Show Story') {
+        revealBtn.textContent = 'Hide Story';
+      } else {
+        revealBtn.textContent = 'Show Story';
+      }
+    });
+  });
+</script>
+
+<style>
+  .joke-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .joke-content {
+    transition: all 0.5s ease;
+  }
+</style>
