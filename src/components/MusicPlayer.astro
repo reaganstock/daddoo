@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 ---
 <div class="fixed bottom-4 right-4 z-10">
   <audio id="bgMusic" preload="auto">
-    <source src="https://archive.org/download/frank-sinatra-the-very-best-of/The%20Very%20Best%20Of%20Frank%20Sinatra/1-01%20Stardust.mp3" type="audio/mp3">
+    <source src="/music/stardust.mp3" type="audio/mp3">
   </audio>
   <button
     id="musicToggle"
@@ -12,7 +12,7 @@ import { useEffect } from 'react';
   >
     <div class="relative">
       <svg id="playIcon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
       </svg>
       <svg id="pauseIcon" class="hidden w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 15.536L2.404 2.404M2.404 21.596L15.536 8.464"/>
