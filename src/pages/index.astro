@@ -1,12 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { RouterProvider } from 'react-router-dom';
-import { router } from '../router';
+import LandingPage from '../components/landing/LandingPage';
 
 ---
 
 <Layout title="Celebrating Trey Stock">
   <main>
-    <RouterProvider client:load router={router} />
+    <LandingPage client:load />
   </main>
 </Layout>
