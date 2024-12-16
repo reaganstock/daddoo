@@ -18,13 +18,21 @@ const FunFactsContainer = ({ isPreview = false }) => {
 
   return (
     <Section id="fun-facts" title="Fun Facts">
-      <div className="space-y-12 max-w-6xl mx-auto pb-32">
-        <FunFactsGrid isPreview={isPreview} />
-        {!isPreview && currentUser && (
-          <div className="mt-24">
-            <AddFunFactButton />
+      <div className="space-y-12">
+        <div className="min-h-[500px] relative">
+          <div className="overflow-y-auto h-[calc(100vh-200px)] pb-24">
+            <div className="max-w-6xl mx-auto">
+              <FunFactsGrid isPreview={isPreview} />
+            </div>
           </div>
-        )}
+          {!isPreview && currentUser && (
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/80 to-transparent">
+              <div className="max-w-6xl mx-auto">
+                <AddFunFactButton />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </Section>
   );
