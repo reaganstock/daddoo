@@ -9,6 +9,6 @@ export default defineConfig({
   output: 'server',
   adapter: netlify(),
   build: {
-    assets: false
+    assets: '_assets'
   }
 });
