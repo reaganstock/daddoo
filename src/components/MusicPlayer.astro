@@ -27,8 +27,6 @@ import { useEffect } from 'react';
 <div id="confetti-container"></div>
 
 <script>
-  import confetti from 'canvas-confetti';
-
   let isPlaying = false;
   const audio = document.getElementById('bgMusic');
   const musicToggle = document.getElementById('musicToggle');
@@ -59,7 +57,13 @@ import { useEffect } from 'react';
         const modalOverlay = document.querySelector('.ReactModal__Overlay');
         if (modalOverlay && musicToggle) {
           const isModalOpen = modalOverlay.classList.contains('ReactModal__Overlay--after-open');
-          musicToggle.style.visibility = isModalOpen ? 'hidden' : 'visible';
+          if (isModalOpen) {
+            musicToggle.style.opacity = '0';
+            musicToggle.style.pointerEvents = 'none';
+          } else {
+            musicToggle.style.opacity = '1';
+            musicToggle.style.pointerEvents = 'auto';
+          }
         }
       }
     });
@@ -75,19 +79,21 @@ import { useEffect } from 'react';
     });
   }
 
-  // Auto-play music on page load
-  if (audio) {
-    window.addEventListener('click', function() {
-      if (!isPlaying) {
-        audio.play().then(() => {
-          isPlaying = true;
-          updateMusicUI();
-        }).catch((error) => {
-          console.log('Autoplay prevented:', error);
-        });
-      }
-    }, { once: true });
+  // Auto-play music on first interaction
+  function attemptAutoPlay() {
+    if (!isPlaying && audio) {
+      audio.play().then(() => {
+        isPlaying = true;
+        updateMusicUI();
+      }).catch((error) => {
+        console.log('Auto-play prevented:', error);
+      });
+    }
   }
+
+  // Try to auto-play on first interaction
+  document.addEventListener('click', attemptAutoPlay, { once: true });
+  document.addEventListener('touchstart', attemptAutoPlay, { once: true });
 
   if (musicToggle && audio) {
     musicToggle.addEventListener('click', () => {
@@ -105,37 +111,6 @@ import { useEffect } from 'react';
       updateMusicUI();
     });
   }
-
-  // Start confetti on page load
-  const duration = 5 * 1000;
-  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-  const animationEnd = Date.now() + duration;
-
-  function randomInRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  const interval = setInterval(function() {
-    const timeLeft = animationEnd - Date.now();
-
-    if (timeLeft <= 0) {
-      clearInterval(interval);
-      return;
-    }
-
-    const particleCount = 50 * (timeLeft / duration);
-
-    confetti({
-      ...defaults,
-      particleCount,
-      origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-    });
-    confetti({
-      ...defaults,
-      particleCount,
-      origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-    });
-  }, 250);
 </script>
 
 <style>

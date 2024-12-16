@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { usePreviewStore } from '../store/previewStore';
-import LoginModal from './auth/LoginModal';
+import LoginModal from './Auth/LoginModal';
 
 const Header = () => {
   const [user, setUser] = useState(null);
