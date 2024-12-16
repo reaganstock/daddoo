@@ -24,12 +24,16 @@ const modalStyles = {
     maxHeight: '90vh',
     overflow: 'auto',
     border: 'none',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    WebkitOverflowScrolling: 'touch'
   },
   overlay: {
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     zIndex: 1000,
-    backdropFilter: 'blur(8px)'
+    overflow: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 };
 

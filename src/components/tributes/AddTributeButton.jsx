@@ -6,13 +6,13 @@ const AddTributeButton = () => {
 
   return (
     <>
-      <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8 hover:bg-white/20 transition-all duration-300" data-aos="fade-up">
+      <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8" data-aos="fade-up">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full flex flex-col items-center justify-center gap-4 py-4"
+          className="w-full flex items-center justify-center group"
         >
           <svg
-            className="w-12 h-12 text-white/60 group-hover:text-white/90 transition-all duration-300"
+            className="w-8 h-8 text-white/60 group-hover:text-white/90 transition-all duration-300 mr-3"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -24,8 +24,8 @@ const AddTributeButton = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          <span className="text-2xl text-white/60 group-hover:text-white/90 transition-all duration-300">
-            Add Your Birthday Tribute
+          <span className="text-xl text-white/60 group-hover:text-white/90 transition-all duration-300">
+            Add Tribute
           </span>
         </button>
       </div>

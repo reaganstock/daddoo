@@ -4,6 +4,35 @@ import useMemoryStore from '../../store/memoryStore';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
 
+const modalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+    borderRadius: '1rem',
+    padding: '2rem',
+    maxWidth: '40rem',
+    width: '90%',
+    maxHeight: '90vh',
+    overflow: 'auto',
+    border: 'none',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    WebkitOverflowScrolling: 'touch' // Enable smooth scrolling on iOS
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    zIndex: 1000,
+    overflow: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
+};
+
 const AddMemoryModal = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -92,70 +121,100 @@ const AddMemoryModal = ({ isOpen, onClose }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="max-w-4xl mx-auto mt-10 bg-gray-900/95 p-12 rounded-lg outline-none"
-      overlayClassName="fixed inset-0 bg-black/75 flex items-center justify-center"
+      style={modalStyles}
+      contentLabel="Add Memory Modal"
     >
-      <h2 className="text-4xl font-bold text-white mb-8 text-center">Add a Memory</h2>
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div>
-          <label className="block text-white text-xl mb-3">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-4 bg-white/10 rounded-lg text-white text-lg"
-            placeholder="Enter a title for your memory"
-            disabled={isLoading}
-            required
-          />
+      <div className="relative">
+        <button
+          onClick={onClose}
+          className="absolute -top-2 -right-2 text-white/60 hover:text-white/90 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-white mb-2">Add a Memory</h2>
+          <p className="text-white/60">Share a special moment with Trey</p>
         </div>
-        <div>
-          <label className="block text-white text-xl mb-3">Content</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full p-4 bg-white/10 rounded-lg text-white text-lg"
-            placeholder="Share your memory..."
-            rows="4"
-            disabled={isLoading}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-white text-xl mb-3">Photo</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageSelect}
-            className="w-full text-white"
-            disabled={isLoading}
-          />
-          {image && (
-            <img
-              src={image}
-              alt="Preview"
-              className="mt-2 w-full h-48 object-cover rounded-lg"
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-white/90 mb-1.5">
+              Title
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="Enter a title for your memory"
+              required
             />
-          )}
-        </div>
-        <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/90 mb-1.5">
+              Description
+            </label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full h-32 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              placeholder="Describe this memory"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/90 mb-1.5">
+              Image
+            </label>
+            <div className="space-y-4">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+                id="memory-image"
+              />
+              <label
+                htmlFor="memory-image"
+                className="block w-full px-4 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors cursor-pointer text-center"
+              >
+                Choose Image
+              </label>
+              {image && (
+                <div className="relative mt-4">
+                  <img
+                    src={image}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setImage('')}
+                    className="absolute top-2 right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           <button
             type="submit"
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
             disabled={isLoading}
+            className="w-full px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Adding...' : 'Add Memory'}
+            {isLoading ? 'Adding Memory...' : 'Add Memory'}
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </Modal>
   );
 };

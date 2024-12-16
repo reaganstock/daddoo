@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 ---
 <div class="fixed bottom-4 right-4 z-50">
-  <audio id="bgMusic" preload="none">
+  <audio id="bgMusic" preload="auto" autoplay>
     <source src="https://archive.org/download/frank-sinatra-the-very-best-of/The%20Very%20Best%20Of%20Frank%20Sinatra/1-01%20Stardust.mp3" type="audio/mp3">
   </audio>
   <button
@@ -12,14 +12,15 @@ import { useEffect } from 'react';
   >
     <div class="relative">
       <svg id="playIcon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <svg id="pauseIcon" class="hidden w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 15.536L2.404 2.404M2.404 21.596L15.536 8.464"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     </div>
     <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-black/75 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-      <span id="musicStatus">Play Music</span>
+      <span id="musicStatus">Pause Music</span>
     </span>
   </button>
 </div>
@@ -29,7 +30,7 @@ import { useEffect } from 'react';
 <script>
   import confetti from 'canvas-confetti';
 
-  let isPlaying = false;
+  let isPlaying = true; // Start with playing state
   const audio = document.getElementById('bgMusic');
   const musicToggle = document.getElementById('musicToggle');
   const playIcon = document.getElementById('playIcon');
@@ -63,13 +64,21 @@ import { useEffect } from 'react';
     }));
   }, 250);
 
-  // Auto-play music on page load
+  // Initialize UI to show pause state since we're auto-playing
+  if (playIcon && pauseIcon && musicStatus) {
+    playIcon.classList.add('hidden');
+    pauseIcon.classList.remove('hidden');
+    musicStatus.textContent = 'Pause Music';
+    musicToggle?.classList.add('bg-purple-500/50');
+  }
+
+  // Handle autoplay failure
   if (audio) {
     audio.play().catch((error) => {
       console.log('Autoplay prevented');
+      isPlaying = false;
+      updateMusicUI();
     });
-    isPlaying = true;
-    updateMusicUI();
   }
 
   function updateMusicUI() {
@@ -96,11 +105,6 @@ import { useEffect } from 'react';
         audio.play();
       }
       isPlaying = !isPlaying;
-      updateMusicUI();
-    });
-
-    audio.addEventListener('ended', () => {
-      isPlaying = false;
       updateMusicUI();
     });
   }
