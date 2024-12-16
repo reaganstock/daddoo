@@ -116,4 +116,4 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
   )
 }
 
-export default LoginForm
+export { LoginForm }
