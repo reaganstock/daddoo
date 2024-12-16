@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LoginModal } from '../Auth/LoginModal';
+import { LoginModal } from '../auth/LoginModal.tsx';
 import { useAuthStore } from '../../store/authStore';
 
 const LandingPage = () => {
