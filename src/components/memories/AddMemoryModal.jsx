@@ -92,75 +92,67 @@ const AddMemoryModal = ({ isOpen, onClose }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="max-w-4xl mx-auto mt-10 bg-gray-900/95 p-6 md:p-12 rounded-lg outline-none max-h-[90vh] overflow-y-auto"
-      overlayClassName="fixed inset-0 bg-black/75 flex items-start md:items-center justify-center overflow-y-auto"
-      style={{
-        overlay: {
-          zIndex: 1000,
-          padding: '1rem'
-        }
-      }}
+      className="max-w-4xl mx-auto mt-10 bg-gray-900/95 p-12 rounded-lg outline-none"
+      overlayClassName="fixed inset-0 bg-black/75 flex items-center justify-center"
     >
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 text-white/60 hover:text-white/90 transition-colors"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">Add a Memory</h2>
-      <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+      <h2 className="text-4xl font-bold text-white mb-8 text-center">Add a Memory</h2>
+      <form onSubmit={handleSubmit} className="space-y-8">
         <div>
-          <label className="block text-white text-lg md:text-xl mb-2 md:mb-3">Title</label>
+          <label className="block text-white text-xl mb-3">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 md:py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40"
-            placeholder="Enter memory title"
+            className="w-full p-4 bg-white/10 rounded-lg text-white text-lg"
+            placeholder="Enter a title for your memory"
+            disabled={isLoading}
             required
           />
         </div>
-
         <div>
-          <label className="block text-white text-lg md:text-xl mb-2 md:mb-3">Content</label>
+          <label className="block text-white text-xl mb-3">Content</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full px-4 py-2 md:py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 min-h-[100px]"
+            className="w-full p-4 bg-white/10 rounded-lg text-white text-lg"
             placeholder="Share your memory..."
+            rows="4"
+            disabled={isLoading}
             required
           />
         </div>
-
         <div>
-          <label className="block text-white text-lg md:text-xl mb-2 md:mb-3">Image</label>
+          <label className="block text-white text-xl mb-3">Photo</label>
           <input
             type="file"
-            onChange={handleImageSelect}
             accept="image/*"
-            className="w-full px-4 py-2 md:py-3 bg-white/5 border border-white/10 rounded-lg text-white"
+            onChange={handleImageSelect}
+            className="w-full text-white"
+            disabled={isLoading}
           />
           {image && (
-            <div className="mt-4 relative max-h-[200px] overflow-hidden rounded-lg">
-              <img
-                src={image}
-                alt="Memory preview"
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <img
+              src={image}
+              alt="Preview"
+              className="mt-2 w-full h-48 object-cover rounded-lg"
+            />
           )}
         </div>
-
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
+            disabled={isLoading}
+          >
+            Cancel
+          </button>
           <button
             type="submit"
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
             disabled={isLoading}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
           >
-            {isLoading ? 'Adding Memory...' : 'Add Memory'}
+            {isLoading ? 'Adding...' : 'Add Memory'}
           </button>
         </div>
       </form>

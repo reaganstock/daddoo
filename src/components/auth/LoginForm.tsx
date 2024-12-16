@@ -17,7 +17,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: `${window.location.origin}/celebration`
         }
       })
       if (error) throw error
@@ -32,16 +32,13 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
   const handleGoogleLogin = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/celebration`
         }
       })
       if (error) throw error
-      if (data && onSuccess) {
-        onSuccess();
-      }
     } catch (error) {
       console.error('Error:', error)
       setMessage('Error signing in with Google')
@@ -116,4 +113,4 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
   )
 }
 
-export { LoginForm }
+export default LoginForm

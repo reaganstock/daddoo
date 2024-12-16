@@ -55,22 +55,22 @@ const memories = [
   <div class="relative min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
     <ProtectedRoute client:load>
       <Header client:load />
-      <main class="container mx-auto px-4 py-8">
-        <div class="flex justify-end my-12">
+      <main class="container mx-auto px-4 pb-24">
+        <div class="flex justify-end my-8">
           <PreviewButton client:load />
         </div>
         <HeroSection />
-        <div class="container mx-auto px-4 py-12 max-w-7xl">
+        <div class="container mx-auto px-4 max-w-7xl space-y-16">
           <NormQuote />
           <BirthdayCountdown />
           <SectionNav client:load />
-          <div id="tributes" class="section-content block">
+          <div id="tributes" class="section-content pt-16">
             <TributeSection client:load />
           </div>
-          <div id="memories" class="section-content block">
+          <div id="memories" class="section-content pt-16">
             <MemorySection client:load defaultMemories={memories} />
           </div>
-          <div id="funfacts" class="section-content block">
+          <div id="funfacts" class="section-content pt-16">
             <FunFactsContainer client:load />
           </div>
         </div>
@@ -82,6 +82,10 @@ const memories = [
 
 <style>
   .section-content {
-    scroll-margin-top: 2rem;
+    scroll-margin-top: 6rem;
+  }
+
+  :global(html) {
+    scroll-behavior: smooth;
   }
 </style>

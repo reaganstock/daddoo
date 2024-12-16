@@ -41,24 +41,18 @@ const TributeSection = ({ isPreview = false }) => {
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="min-h-[500px] relative">
-        <div className="overflow-y-auto h-[calc(100vh-200px)] pb-24">
-          <div className="space-y-6 max-w-4xl mx-auto">
-            {tributes.map((tribute) => (
-              <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
-                <TributeCard
-                  tribute={tribute}
-                  isEditable={!isPreview && currentUser?.id === tribute.user_id}
-                />
-              </div>
-            ))}
+      <div className="space-y-12 max-w-4xl mx-auto">
+        {tributes.map((tribute) => (
+          <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
+            <TributeCard
+              tribute={tribute}
+              isEditable={!isPreview && currentUser?.id === tribute.user_id}
+            />
           </div>
-        </div>
+        ))}
         {!isPreview && currentUser && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/80 to-transparent">
-            <div className="max-w-4xl mx-auto">
-              <AddTributeButton />
-            </div>
+          <div className="mt-12">
+            <AddTributeButton />
           </div>
         )}
       </div>

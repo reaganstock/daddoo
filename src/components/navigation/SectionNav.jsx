@@ -10,44 +10,32 @@ const SectionNav = () => {
   const [selectedSection, setSelectedSection] = useState(null);
 
   const handleSectionChange = (id) => {
-    if (selectedSection === id) {
-      // If clicking the same section, show all sections
-      setSelectedSection(null);
-      sections.forEach(section => {
-        const element = document.getElementById(section.id);
-        if (element) {
-          element.style.display = 'block';
-        }
-      });
-    } else {
-      // Show only selected section
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setSelectedSection(id);
-      sections.forEach(section => {
-        const element = document.getElementById(section.id);
-        if (element) {
-          element.style.display = section.id === id ? 'block' : 'none';
-        }
-      });
     }
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-4 mb-8">
-      {sections.map((section) => (
-        <button
-          key={section.id}
-          onClick={() => handleSectionChange(section.id)}
-          className={`px-6 py-3 rounded-lg transition-all duration-300 flex items-center gap-2
-            ${selectedSection === section.id 
-              ? 'bg-purple-600 text-white' 
-              : 'bg-white/10 text-white/80 hover:bg-white/20'
-            }`}
-        >
-          <span className="text-xl">{section.icon}</span>
-          <span className="font-medium">{section.label}</span>
-        </button>
-      ))}
-    </div>
+    <nav className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md py-4 px-2 -mx-2 overflow-x-auto">
+      <div className="flex justify-start md:justify-center gap-2 md:gap-4 min-w-max">
+        {sections.map((section) => (
+          <button
+            key={section.id}
+            onClick={() => handleSectionChange(section.id)}
+            className={`px-4 md:px-6 py-2 md:py-3 rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap
+              ${selectedSection === section.id 
+                ? 'bg-purple-600 text-white' 
+                : 'bg-white/10 text-white/80 hover:bg-white/20'
+              }`}
+          >
+            <span className="text-xl">{section.icon}</span>
+            <span className="font-medium text-sm md:text-base">{section.label}</span>
+          </button>
+        ))}
+      </div>
+    </nav>
   );
 };
 
