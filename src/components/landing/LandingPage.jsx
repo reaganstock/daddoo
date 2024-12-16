@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import LoginModal from '../auth/LoginModal.tsx';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleEnter = () => {
     setIsLoginModalOpen(true);
   };
 
   const handlePreview = () => {
-    window.location.href = '/preview';
+    navigate('/preview');
   };
 
   const handleLoginSuccess = () => {
-    window.location.href = '/celebration';
+    navigate('/celebration');
   };
 
   return (
