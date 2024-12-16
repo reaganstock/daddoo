@@ -41,7 +41,7 @@ const TributeSection = ({ isPreview = false }) => {
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="space-y-12 max-w-4xl mx-auto">
+      <div className="space-y-12 max-w-4xl mx-auto pb-24">
         {tributes.map((tribute) => (
           <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
             <TributeCard
@@ -51,7 +51,7 @@ const TributeSection = ({ isPreview = false }) => {
           </div>
         ))}
         {!isPreview && currentUser && (
-          <div className="mt-12">
+          <div className="mt-12 pb-12">
             <AddTributeButton />
           </div>
         )}

@@ -1,8 +1,8 @@
 ---
 import { useEffect } from 'react';
 ---
-<div class="fixed bottom-4 right-4 z-40">
-  <audio id="bgMusic" preload="none">
+<div class="fixed bottom-4 right-4 z-10">
+  <audio id="bgMusic" preload="auto">
     <source src="https://archive.org/download/frank-sinatra-the-very-best-of/The%20Very%20Best%20Of%20Frank%20Sinatra/1-01%20Stardust.mp3" type="audio/mp3">
   </audio>
   <button
@@ -36,44 +36,77 @@ import { useEffect } from 'react';
   const pauseIcon = document.getElementById('pauseIcon');
   const musicStatus = document.getElementById('musicStatus');
 
-  if (musicToggle && audio && playIcon && pauseIcon && musicStatus) {
-    musicToggle.addEventListener('click', () => {
-      if (!isPlaying) {
-        audio.play();
+  function updateMusicUI() {
+    if (playIcon && pauseIcon && musicStatus) {
+      if (isPlaying) {
         playIcon.classList.add('hidden');
         pauseIcon.classList.remove('hidden');
         musicStatus.textContent = 'Pause Music';
       } else {
-        audio.pause();
         playIcon.classList.remove('hidden');
         pauseIcon.classList.add('hidden');
         musicStatus.textContent = 'Play Music';
       }
-      isPlaying = !isPlaying;
-    });
-
-    // Hide music player when modal is open
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          const modalOverlay = document.querySelector('.ReactModal__Overlay');
-          if (modalOverlay) {
-            const isModalOpen = modalOverlay.classList.contains('ReactModal__Overlay--after-open');
-            musicToggle.style.display = isModalOpen ? 'none' : 'block';
-          }
-        }
-      });
-    });
-
-    // Start observing modal overlay changes
-    const modalRoot = document.getElementById('root');
-    if (modalRoot) {
-      observer.observe(modalRoot, {
-        attributes: true,
-        subtree: true,
-        attributeFilter: ['class']
-      });
     }
+  }
+
+  // Hide music player when modal is open
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        const modalOverlay = document.querySelector('.ReactModal__Overlay');
+        if (modalOverlay && musicToggle) {
+          const isModalOpen = modalOverlay.classList.contains('ReactModal__Overlay--after-open');
+          musicToggle.style.visibility = isModalOpen ? 'hidden' : 'visible';
+        }
+      }
+    });
+  });
+
+  // Start observing modal overlay changes
+  const modalRoot = document.getElementById('root');
+  if (modalRoot) {
+    observer.observe(modalRoot, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['class']
+    });
+  }
+
+  // Auto-play music when user interacts with the page
+  function attemptAutoPlay() {
+    if (audio && !isPlaying) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          isPlaying = true;
+          updateMusicUI();
+        }).catch(error => {
+          console.log("Auto-play prevented:", error);
+        });
+      }
+    }
+  }
+
+  // Try to auto-play when user interacts with the page
+  document.addEventListener('click', attemptAutoPlay, { once: true });
+  document.addEventListener('touchstart', attemptAutoPlay, { once: true });
+
+  if (musicToggle && audio) {
+    musicToggle.addEventListener('click', () => {
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        audio.play();
+      }
+      isPlaying = !isPlaying;
+      updateMusicUI();
+    });
+
+    audio.addEventListener('ended', () => {
+      isPlaying = false;
+      updateMusicUI();
+    });
   }
 
   // Start confetti on page load
@@ -106,38 +139,6 @@ import { useEffect } from 'react';
       origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
     });
   }, 250);
-
-  // Auto-play music on page load
-  if (audio) {
-    audio.play().catch((error) => {
-      console.log('Autoplay prevented');
-    });
-    isPlaying = true;
-    updateMusicUI();
-  }
-
-  function updateMusicUI() {
-    if (playIcon && pauseIcon && musicStatus) {
-      if (isPlaying) {
-        playIcon.classList.add('hidden');
-        pauseIcon.classList.remove('hidden');
-        musicStatus.textContent = 'Pause Music';
-        musicToggle?.classList.add('bg-purple-500/50');
-      } else {
-        playIcon.classList.remove('hidden');
-        pauseIcon.classList.add('hidden');
-        musicStatus.textContent = 'Play Music';
-        musicToggle?.classList.remove('bg-purple-500/50');
-      }
-    }
-  }
-
-  if (musicToggle && audio) {
-    audio.addEventListener('ended', () => {
-      isPlaying = false;
-      updateMusicUI();
-    });
-  }
 </script>
 
 <style>
