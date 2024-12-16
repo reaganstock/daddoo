@@ -49,6 +49,9 @@ const memories = [
     date: new Date().toISOString()
   }
 ];
+
+const isPreview = false;
+
 ---
 
 <Layout title="Celebrating Trey Stock">
@@ -65,13 +68,13 @@ const memories = [
           <BirthdayCountdown />
           <SectionNav client:load />
           <div id="tributes" class="section-content pt-16">
-            <TributeSection client:load />
+            <TributeSection client:load isPreview={isPreview} />
           </div>
           <div id="memories" class="section-content pt-16">
-            <MemorySection client:load defaultMemories={memories} />
+            <MemorySection client:load defaultMemories={memories} isPreview={isPreview} />
           </div>
           <div id="funfacts" class="section-content pt-16">
-            <FunFactsContainer client:load />
+            <FunFactsContainer client:load isPreview={isPreview} />
           </div>
         </div>
         <MusicPlayer />

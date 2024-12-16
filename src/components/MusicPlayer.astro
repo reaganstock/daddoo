@@ -5,39 +5,42 @@ const { className } = Astro.props;
 <div class={`fixed bottom-4 right-4 z-50 ${className}`}>
   <button
     id="musicToggle"
-    class="bg-gray-800 hover:bg-gray-700 text-white rounded-full p-3 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110"
-    aria-label="Toggle music"
+    class="bg-white/10 backdrop-blur-md p-4 rounded-full shadow-xl hover:bg-white/20 transition-all duration-300 group"
+    aria-label="Toggle Music"
   >
-    <svg
-      id="playIcon"
-      class="w-6 h-6"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M9 19V5l12 7-12 7z"
-      />
-    </svg>
-    <svg
-      id="pauseIcon"
-      class="w-6 h-6 hidden"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M21 12H3m0 0l8.5-8.5M3 12l8.5 8.5"
-      />
-    </svg>
+    <div class="relative">
+      <svg 
+        id="playIcon" 
+        class="w-6 h-6 text-white" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          stroke-width="2" 
+          d="M9 19V5l12 7-12 7z M9 5v14"
+        />
+      </svg>
+      <svg 
+        id="pauseIcon" 
+        class="hidden w-6 h-6 text-white" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          stroke-width="2" 
+          d="M21 12H3m0 0l8.5-8.5M3 12l8.5 8.5"
+        />
+      </svg>
+    </div>
+    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-black/75 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+      <span id="musicStatus">Pause Music</span>
+    </span>
   </button>
 
   <audio id="bgMusic" loop>
@@ -56,6 +59,7 @@ const { className } = Astro.props;
     const bgMusic = document.getElementById('bgMusic');
     const playIcon = document.getElementById('playIcon');
     const pauseIcon = document.getElementById('pauseIcon');
+    const musicStatus = document.getElementById('musicStatus');
 
     let isPlaying = false;
 
@@ -66,12 +70,14 @@ const { className } = Astro.props;
         bgMusic.pause();
         playIcon?.classList.remove('hidden');
         pauseIcon?.classList.add('hidden');
+        musicStatus.textContent = 'Play Music';
       } else {
         bgMusic.play().catch(error => {
           console.error('Error playing music:', error);
         });
         playIcon?.classList.add('hidden');
         pauseIcon?.classList.remove('hidden');
+        musicStatus.textContent = 'Pause Music';
       }
       isPlaying = !isPlaying;
     }
@@ -83,11 +89,13 @@ const { className } = Astro.props;
       isPlaying = true;
       playIcon?.classList.add('hidden');
       pauseIcon?.classList.remove('hidden');
+      musicStatus.textContent = 'Pause Music';
     }).catch(error => {
       console.error('Autoplay failed:', error);
       isPlaying = false;
       playIcon?.classList.remove('hidden');
       pauseIcon?.classList.add('hidden');
+      musicStatus.textContent = 'Play Music';
     });
   });
 

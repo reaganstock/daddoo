@@ -6,26 +6,29 @@ const AddTributeButton = ({ className }) => {
 
   return (
     <>
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className={`inline-flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 ${className}`}
-      >
-        <svg
-          className="w-5 h-5 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+      <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8" data-aos="fade-up">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="w-full flex items-center justify-center group"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-          />
-        </svg>
-        Add Birthday Tribute
-      </button>
+          <svg
+            className="w-8 h-8 text-white/60 group-hover:text-white/90 transition-all duration-300 mr-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          <span className="text-xl text-white/60 group-hover:text-white/90 transition-all duration-300">
+            Add Tribute
+          </span>
+        </button>
+      </div>
       <AddTributeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
