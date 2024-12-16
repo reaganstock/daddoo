@@ -37,9 +37,11 @@ const TributeSection = ({ isPreview = false }) => {
   if (loading) {
     return (
       <Section id="tributes" title="Birthday Tributes">
-        <div style={containerStyle}>
-          <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
-          <div className="text-white">Loading tributes...</div>
+        <div className="w-full relative z-10">
+          <div style={containerStyle}>
+            <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
+            <div className="text-white">Loading tributes...</div>
+          </div>
         </div>
       </Section>
     );
@@ -48,9 +50,11 @@ const TributeSection = ({ isPreview = false }) => {
   if (error) {
     return (
       <Section id="tributes" title="Birthday Tributes">
-        <div style={containerStyle}>
-          <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
-          <div className="text-red-500">{error}</div>
+        <div className="w-full relative z-10">
+          <div style={containerStyle}>
+            <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
+            <div className="text-red-500">{error}</div>
+          </div>
         </div>
       </Section>
     );
@@ -58,23 +62,29 @@ const TributeSection = ({ isPreview = false }) => {
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div style={containerStyle}>
-        <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
-        <div className="flex flex-col gap-4 w-full">
-          {tributes.map((tribute) => (
-            <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
-              <TributeCard
-                tribute={tribute}
-                isEditable={!isPreview && currentUser?.id === tribute.user_id}
-              />
-            </div>
-          ))}
+      <div className="w-full relative z-10">
+        <div style={containerStyle}>
+          <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
+          {loading ? (
+            <div className="text-white">Loading tributes...</div>
+          ) : error ? (
+            <div className="text-red-500">{error}</div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-4 w-full">
+                {tributes.map((tribute, index) => (
+                  <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
+                    <TributeCard
+                      tribute={tribute}
+                      isEditable={!isPreview && currentUser?.id === tribute.user_id}
+                    />
+                  </div>
+                ))}
+              </div>
+              {!isPreview && <AddTributeButton className="mt-4 w-full md:w-auto" />}
+            </>
+          )}
         </div>
-        {!isPreview && currentUser && (
-          <div className="mt-4">
-            <AddTributeButton />
-          </div>
-        )}
       </div>
     </Section>
   );
