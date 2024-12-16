@@ -8,6 +8,31 @@ import toast from 'react-hot-toast';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 
+const modalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+    borderRadius: '1rem',
+    padding: '2rem',
+    maxWidth: '40rem',
+    width: '90%',
+    maxHeight: '90vh',
+    overflow: 'auto',
+    border: 'none',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    zIndex: 1000,
+    backdropFilter: 'blur(8px)'
+  }
+};
+
 const AddTributeModal = ({ isOpen, onClose }) => {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
@@ -111,8 +136,8 @@ const AddTributeModal = ({ isOpen, onClose }) => {
     <ReactModal
       isOpen={isOpen}
       onRequestClose={handleClose}
-      className="max-w-2xl w-full mx-auto mt-20 bg-gray-900 rounded-lg p-6 border border-gray-700"
-      overlayClassName="fixed inset-0 bg-black/75 flex items-start justify-center"
+      style={modalStyles}
+      contentLabel="Add Tribute Modal"
     >
       <div className="relative">
         <button
@@ -124,109 +149,102 @@ const AddTributeModal = ({ isOpen, onClose }) => {
           </svg>
         </button>
 
-        <h2 className="text-2xl font-bold text-white mb-6">Add New Tribute</h2>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-white mb-2">Add Your Tribute</h2>
+          <p className="text-white/60">Share your birthday message for Trey</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-white mb-2">Title</label>
+            <label className="block text-sm font-medium text-white/90 mb-1.5">
+              Title
+            </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter title"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="Enter a title for your tribute"
               required
             />
           </div>
 
           <div>
-            <label className="block text-white mb-2">Content</label>
+            <label className="block text-sm font-medium text-white/90 mb-1.5">
+              Message
+            </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 min-h-[200px]"
-              placeholder="Write your tribute..."
+              className="w-full h-32 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              placeholder="Write your birthday message here"
               required
             />
           </div>
 
           <div>
-            <label className="block text-white mb-2">Audio Message (Optional)</label>
-            {!audioBlob && !isRecording && (
-              <button
-                type="button"
-                onClick={startRecording}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                Start Recording
-              </button>
-            )}
-            {isRecording && (
-              <button
-                type="button"
-                onClick={stopRecording}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-              >
-                Stop Recording
-              </button>
-            )}
-            {audioBlob && !isRecording && (
-              <div className="space-y-2">
-                <AudioPlayer
-                  src={URL.createObjectURL(audioBlob)}
-                  customAdditionalControls={[]}
-                  className="rounded-lg overflow-hidden bg-white/5"
-                />
+            <label className="block text-sm font-medium text-white/90 mb-1.5">
+              Voice Message (Optional)
+            </label>
+            <div className="space-y-2">
+              {!audioBlob && (
                 <button
                   type="button"
-                  onClick={() => setAudioBlob(null)}
-                  className="text-red-400 hover:text-red-300 text-sm"
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={`w-full px-4 py-3 rounded-lg transition-colors ${
+                    isRecording
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : 'bg-purple-500 hover:bg-purple-600'
+                  } text-white`}
                 >
-                  Remove Recording
+                  {isRecording ? 'Stop Recording' : 'Start Recording'}
                 </button>
-              </div>
-            )}
+              )}
+              {audioBlob && (
+                <div className="space-y-2">
+                  <AudioPlayer
+                    src={URL.createObjectURL(audioBlob)}
+                    className="rounded-lg overflow-hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setAudioBlob(null)}
+                    className="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                  >
+                    Delete Recording
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-white mb-2">Your Signature (Optional)</label>
+          <div>
+            <label className="block text-sm font-medium text-white/90 mb-1.5">
+              Signature (Optional)
+            </label>
             <div className="bg-white rounded-lg overflow-hidden">
               <SignatureCanvas
                 ref={signaturePadRef}
                 canvasProps={{
-                  className: 'w-full',
-                  style: { 
-                    width: '100%', 
-                    height: '200px',
-                    backgroundColor: 'white'
-                  }
+                  className: 'w-full h-40'
                 }}
               />
             </div>
             <button
               type="button"
               onClick={() => signaturePadRef.current?.clear()}
-              className="mt-2 text-sm text-blue-400 hover:text-blue-300"
+              className="mt-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
             >
               Clear Signature
             </button>
           </div>
 
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            >
-              Add Tribute
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
+          >
+            Submit Tribute
+          </button>
         </form>
       </div>
     </ReactModal>

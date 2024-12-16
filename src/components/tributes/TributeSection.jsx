@@ -24,7 +24,7 @@ const TributeSection = ({ isPreview = false }) => {
   if (loading) {
     return (
       <Section id="tributes" title="Birthday Tributes">
-        <div className="flex justify-center items-center py-12">
+        <div className="flex justify-center items-center min-h-[50vh]">
           <div className="text-white">Loading tributes...</div>
         </div>
       </Section>
@@ -34,22 +34,26 @@ const TributeSection = ({ isPreview = false }) => {
   if (error) {
     return (
       <Section id="tributes" title="Birthday Tributes">
-        <div className="text-red-400">Error loading tributes: {error}</div>
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <div className="text-red-400">Error loading tributes: {error}</div>
+        </div>
       </Section>
     );
   }
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="space-y-12 max-w-4xl mx-auto">
-        {tributes.map((tribute) => (
-          <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
-            <TributeCard
-              tribute={tribute}
-              isEditable={!isPreview && currentUser?.id === tribute.user_id}
-            />
-          </div>
-        ))}
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-8 mb-12">
+          {tributes.map((tribute) => (
+            <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
+              <TributeCard
+                tribute={tribute}
+                isEditable={!isPreview && currentUser?.id === tribute.user_id}
+              />
+            </div>
+          ))}
+        </div>
         {!isPreview && currentUser && (
           <div className="mt-12">
             <AddTributeButton />

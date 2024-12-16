@@ -14,7 +14,9 @@ const MemorySection = ({ isPreview }) => {
   if (loading) {
     return (
       <Section title="Memories That Last Forever" id="memories">
-        <div className="text-white">Loading memories...</div>
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <div className="text-white">Loading memories...</div>
+        </div>
       </Section>
     );
   }
@@ -22,18 +24,26 @@ const MemorySection = ({ isPreview }) => {
   if (error) {
     return (
       <Section title="Memories That Last Forever" id="memories">
-        <div className="text-red-400">Error loading memories: {error}</div>
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <div className="text-red-400">Error loading memories: {error}</div>
+        </div>
       </Section>
     );
   }
 
   return (
     <Section title="Memories That Last Forever" id="memories">
-      <div className="space-y-8">
-        {memories.map((memory) => (
-          <MemoryCard key={memory.id} memory={memory} isPreview={isPreview} />
-        ))}
-        {!isPreview && <AddMemoryButton />}
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-8 mb-12">
+          {memories.map((memory) => (
+            <MemoryCard key={memory.id} memory={memory} isPreview={isPreview} />
+          ))}
+        </div>
+        {!isPreview && (
+          <div className="mt-12">
+            <AddMemoryButton />
+          </div>
+        )}
       </div>
     </Section>
   );
