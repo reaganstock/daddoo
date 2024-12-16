@@ -1,7 +1,7 @@
 ---
 import { useEffect } from 'react';
 ---
-<div class="fixed bottom-4 right-4 z-50">
+<div class="fixed bottom-4 right-4 z-40">
   <audio id="bgMusic" preload="none">
     <source src="https://archive.org/download/frank-sinatra-the-very-best-of/The%20Very%20Best%20Of%20Frank%20Sinatra/1-01%20Stardust.mp3" type="audio/mp3">
   </audio>
@@ -36,6 +36,46 @@ import { useEffect } from 'react';
   const pauseIcon = document.getElementById('pauseIcon');
   const musicStatus = document.getElementById('musicStatus');
 
+  if (musicToggle && audio && playIcon && pauseIcon && musicStatus) {
+    musicToggle.addEventListener('click', () => {
+      if (!isPlaying) {
+        audio.play();
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+        musicStatus.textContent = 'Pause Music';
+      } else {
+        audio.pause();
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+        musicStatus.textContent = 'Play Music';
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // Hide music player when modal is open
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          const modalOverlay = document.querySelector('.ReactModal__Overlay');
+          if (modalOverlay) {
+            const isModalOpen = modalOverlay.classList.contains('ReactModal__Overlay--after-open');
+            musicToggle.style.display = isModalOpen ? 'none' : 'block';
+          }
+        }
+      });
+    });
+
+    // Start observing modal overlay changes
+    const modalRoot = document.getElementById('root');
+    if (modalRoot) {
+      observer.observe(modalRoot, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['class']
+      });
+    }
+  }
+
   // Start confetti on page load
   const duration = 5 * 1000;
   const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -49,18 +89,22 @@ import { useEffect } from 'react';
     const timeLeft = animationEnd - Date.now();
 
     if (timeLeft <= 0) {
-      return clearInterval(interval);
+      clearInterval(interval);
+      return;
     }
 
     const particleCount = 50 * (timeLeft / duration);
-    confetti(Object.assign({}, defaults, {
+
+    confetti({
+      ...defaults,
       particleCount,
       origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-    }));
-    confetti(Object.assign({}, defaults, {
+    });
+    confetti({
+      ...defaults,
       particleCount,
       origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-    }));
+    });
   }, 250);
 
   // Auto-play music on page load
@@ -89,16 +133,6 @@ import { useEffect } from 'react';
   }
 
   if (musicToggle && audio) {
-    musicToggle.addEventListener('click', () => {
-      if (isPlaying) {
-        audio.pause();
-      } else {
-        audio.play();
-      }
-      isPlaying = !isPlaying;
-      updateMusicUI();
-    });
-
     audio.addEventListener('ended', () => {
       isPlaying = false;
       updateMusicUI();
