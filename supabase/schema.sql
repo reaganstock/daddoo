@@ -41,11 +41,12 @@ CREATE TABLE tributes (
     title TEXT,
     content TEXT NOT NULL,
     audio_url TEXT,
-    signature_url TEXT,
+    signature_url TEXT DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     user_id UUID REFERENCES auth.users(id),
     user_email TEXT,
+    is_deleted BOOLEAN DEFAULT false,
     metadata JSONB DEFAULT '{}'::jsonb
 );
 
@@ -61,6 +62,7 @@ CREATE TABLE memories (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     user_id UUID REFERENCES auth.users(id),
     user_email TEXT,
+    is_deleted BOOLEAN DEFAULT false,
     metadata JSONB DEFAULT '{}'::jsonb,
     CHECK (image_url IS NOT NULL OR video_url IS NOT NULL)
 );
@@ -76,6 +78,7 @@ CREATE TABLE fun_facts (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     user_id UUID REFERENCES auth.users(id),
     user_email TEXT,
+    is_deleted BOOLEAN DEFAULT false,
     metadata JSONB DEFAULT '{}'::jsonb
 );
 
@@ -113,103 +116,85 @@ CREATE TRIGGER update_fun_facts_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- Enable RLS
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE celebrations ENABLE ROW LEVEL SECURITY;
+-- Enable Row Level Security
 ALTER TABLE tributes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE memories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fun_facts ENABLE ROW LEVEL SECURITY;
 
--- Create policies for users
-CREATE POLICY "Allow users to read all profiles"
-    ON users FOR SELECT
-    TO authenticated
-    USING (true);
+-- Policies for memories
+DROP POLICY IF EXISTS "Allow public read access to memories" ON memories;
+DROP POLICY IF EXISTS "Allow authenticated users to create memories" ON memories;
+DROP POLICY IF EXISTS "Allow users to update their own memories" ON memories;
+DROP POLICY IF EXISTS "Allow users to delete their own memories" ON memories;
 
-CREATE POLICY "Allow users to update their own profile"
-    ON users FOR UPDATE
-    TO authenticated
-    USING (auth_id = auth.uid());
-
--- Create policies for celebrations
-CREATE POLICY "Allow public read access to celebrations with code"
-    ON celebrations FOR SELECT
-    USING (true);
-
-CREATE POLICY "Allow admins to manage celebrations"
-    ON celebrations FOR ALL
-    TO authenticated
-    USING (EXISTS (
-        SELECT 1 FROM users
-        WHERE users.auth_id = auth.uid()
-        AND users.is_admin = true
-    ));
-
--- Create policies for tributes
-CREATE POLICY "Allow public read access to tributes"
-    ON tributes FOR SELECT
-    TO authenticated
-    USING (true);
-
-CREATE POLICY "Allow authenticated users to create tributes"
-    ON tributes FOR INSERT
-    TO authenticated
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Allow users to update their own tributes"
-    ON tributes FOR UPDATE
-    TO authenticated
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Allow users to delete their own tributes"
-    ON tributes FOR DELETE
-    TO authenticated
-    USING (auth.uid() = user_id);
-
--- Create policies for memories
 CREATE POLICY "Allow public read access to memories"
-    ON memories FOR SELECT
-    TO authenticated
-    USING (true);
+ON memories FOR SELECT
+USING (true);
 
 CREATE POLICY "Allow authenticated users to create memories"
-    ON memories FOR INSERT
-    TO authenticated
-    WITH CHECK (auth.uid() = user_id);
+ON memories FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Allow users to update their own memories"
-    ON memories FOR UPDATE
-    TO authenticated
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+ON memories FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id);
 
 CREATE POLICY "Allow users to delete their own memories"
-    ON memories FOR DELETE
-    TO authenticated
-    USING (auth.uid() = user_id);
+ON memories FOR DELETE
+TO authenticated
+USING (auth.uid() = user_id);
 
--- Create policies for fun facts
+-- Policies for tributes
+DROP POLICY IF EXISTS "Allow public read access to tributes" ON tributes;
+DROP POLICY IF EXISTS "Allow authenticated users to create tributes" ON tributes;
+DROP POLICY IF EXISTS "Allow users to update their own tributes" ON tributes;
+DROP POLICY IF EXISTS "Allow users to delete their own tributes" ON tributes;
+
+CREATE POLICY "Allow public read access to tributes"
+ON tributes FOR SELECT
+USING (true);
+
+CREATE POLICY "Allow authenticated users to create tributes"
+ON tributes FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to update their own tributes"
+ON tributes FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to delete their own tributes"
+ON tributes FOR DELETE
+TO authenticated
+USING (auth.uid() = user_id);
+
+-- Policies for fun facts
+DROP POLICY IF EXISTS "Allow public read access to fun_facts" ON fun_facts;
+DROP POLICY IF EXISTS "Allow authenticated users to create fun_facts" ON fun_facts;
+DROP POLICY IF EXISTS "Allow users to update their own fun_facts" ON fun_facts;
+DROP POLICY IF EXISTS "Allow users to delete their own fun_facts" ON fun_facts;
+
 CREATE POLICY "Allow public read access to fun_facts"
-    ON fun_facts FOR SELECT
-    TO authenticated
-    USING (true);
+ON fun_facts FOR SELECT
+USING (true);
 
 CREATE POLICY "Allow authenticated users to create fun_facts"
-    ON fun_facts FOR INSERT
-    TO authenticated
-    WITH CHECK (auth.uid() = user_id);
+ON fun_facts FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Allow users to update their own fun_facts"
-    ON fun_facts FOR UPDATE
-    TO authenticated
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+ON fun_facts FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id);
 
 CREATE POLICY "Allow users to delete their own fun_facts"
-    ON fun_facts FOR DELETE
-    TO authenticated
-    USING (auth.uid() = user_id);
+ON fun_facts FOR DELETE
+TO authenticated
+USING (auth.uid() = user_id);
 
 -- Insert default celebration for daddoo
 INSERT INTO celebrations (title, description, access_code, owner_id)

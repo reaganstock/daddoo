@@ -3,11 +3,12 @@ import Layout from '../layouts/Layout.astro';
 import HeroSection from '../components/HeroSection.astro';
 import NormQuote from '../components/NormQuote.astro';
 import BirthdayCountdown from '../components/BirthdayCountdown.astro';
+import SectionNav from '../components/navigation/SectionNav';
 import TributeSection from '../components/tributes/TributeSection';
 import MemorySection from '../components/memories/MemorySection';
 import FunFactsContainer from '../components/fun-facts/FunFactsContainer';
 import MusicPlayer from '../components/MusicPlayer.astro';
-import PreviewCheck from '../components/Auth/PreviewCheck.tsx';
+import PreviewCheck from '../components/Auth/PreviewCheck';
 
 const memories = [
   {
@@ -49,42 +50,35 @@ const memories = [
 
 ---
 
-<Layout title="Dad's Birthday - Preview">
+<Layout title="Celebrating the Great Historic Life of Trey Stock - Preview">
   <PreviewCheck client:load>
-    <main class="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
+    <div class="relative min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
       <header class="bg-transparent py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
-          <h1 class="text-white text-2xl font-bold">Dad's Birthday - Preview</h1>
+          <h1 class="text-white text-2xl font-bold">Celebrating the Great Historic Life of Trey Stock - Preview</h1>
           <a href="/" class="text-white hover:text-red-300 transition-colors">Exit Preview</a>
         </div>
       </header>
-
-      <HeroSection />
-      <div class="container mx-auto px-4 py-12 max-w-7xl">
-        <NormQuote />
-        <BirthdayCountdown />
-        
-        <!-- Show all sections by default -->
-        <div class="space-y-12">
-          <div class="section-content">
+      <main class="container mx-auto px-4 py-8">
+        <div class="max-w-7xl mx-auto">
+          <HeroSection isPreview={true} />
+          <div class="container mx-auto px-4 py-12">
+            <NormQuote />
+            <BirthdayCountdown />
+            <SectionNav client:load />
             <TributeSection client:load isPreview={true} />
-          </div>
-          <div class="section-content">
             <MemorySection client:load defaultMemories={memories} isPreview={true} />
-          </div>
-          <div class="section-content">
             <FunFactsContainer client:load isPreview={true} />
           </div>
         </div>
-      </div>
+      </main>
       <MusicPlayer />
-    </main>
+    </div>
   </PreviewCheck>
 </Layout>
 
 <style>
-  .section-content {
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
+  .container {
+    max-width: 1200px;
   }
 </style>

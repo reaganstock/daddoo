@@ -1,11 +1,10 @@
 import React from 'react';
-import useFunFactsStore from '../../store/funFactsStore';
+import useFunFactStore from '../../store/funFactStore';
 import { supabase } from '../../lib/supabase';
-import toast from 'react-hot-toast'; // Assuming you're using react-hot-toast for toast notifications
 
 const FunFactCard = ({ fact, isPreview }) => {
   const [currentUser, setCurrentUser] = React.useState(null);
-  const { deleteFunFact } = useFunFactsStore();
+  const { deleteFunFact, setEditingFunFact } = useFunFactStore();
 
   React.useEffect(() => {
     if (!isPreview) {
@@ -15,15 +14,15 @@ const FunFactCard = ({ fact, isPreview }) => {
     }
   }, [isPreview]);
 
+  const handleEdit = () => {
+    if (isPreview) return;
+    setEditingFunFact(fact);
+  };
+
   const handleDelete = async () => {
     if (isPreview) return;
     if (window.confirm('Are you sure you want to delete this fun fact?')) {
-      const result = await deleteFunFact(fact.id);
-      if (result.success) {
-        toast.success('Fun fact deleted successfully');
-      } else {
-        toast.error('Failed to delete fun fact');
-      }
+      await deleteFunFact(fact.id);
     }
   };
 
@@ -33,6 +32,12 @@ const FunFactCard = ({ fact, isPreview }) => {
       <p className="text-white/90 mb-4">{fact.content}</p>
       {!isPreview && currentUser?.id === fact.user_id && (
         <div className="flex justify-end space-x-2">
+          <button
+            onClick={handleEdit}
+            className="text-indigo-300 hover:text-indigo-200 transition-colors"
+          >
+            Edit
+          </button>
           <button
             onClick={handleDelete}
             className="text-red-300 hover:text-red-200 transition-colors"

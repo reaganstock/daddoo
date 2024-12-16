@@ -54,9 +54,11 @@ const memories = [
 <Layout title="Celebrating Trey Stock">
   <div class="relative min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
     <ProtectedRoute client:load>
-      <PreviewButton client:load />
       <Header client:load />
       <main class="container mx-auto px-4 py-8">
+        <div class="flex justify-end my-12">
+          <PreviewButton client:load />
+        </div>
         <HeroSection />
         <div class="container mx-auto px-4 py-12 max-w-7xl">
           <NormQuote />
@@ -80,20 +82,6 @@ const memories = [
 
 <style>
   .section-content {
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
-  }
-  
-  .section-content.hidden {
-    display: none;
-    opacity: 0;
+    scroll-margin-top: 2rem;
   }
 </style>
-
-<script>
-  // Update navigation to show/hide sections
-  document.addEventListener('DOMContentLoaded', () => {
-    const sections = document.querySelectorAll('.section-content');
-    sections.forEach(section => section.classList.remove('hidden'));
-  });
-</script>

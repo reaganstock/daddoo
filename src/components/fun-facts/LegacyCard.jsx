@@ -54,22 +54,19 @@ const LegacyCard = ({ id, title, content, image, preview }) => {
             className="w-full p-3 bg-gray-800/50 rounded-lg text-white"
             rows="4"
           />
-          <div className="flex justify-end gap-4">
+          <div className="flex justify-end space-x-2">
             <button
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 bg-gray-600 rounded-lg text-white hover:bg-gray-700"
+              className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
             >
               Cancel
             </button>
             <button
-              onClick={() => {
-                updateFunFact(id, {
-                  title: editTitle,
-                  content: editContent
-                });
+              onClick={async () => {
+                await updateFunFact(id, { title: editTitle, content: editContent });
                 setIsEditing(false);
               }}
-              className="px-4 py-2 bg-purple-600 rounded-lg text-white hover:bg-purple-700"
+              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               Save
             </button>
@@ -87,7 +84,7 @@ const LegacyCard = ({ id, title, content, image, preview }) => {
           <div className="flex gap-2">
             <button
               onClick={() => setIsEditing(true)}
-              className="text-blue-400 hover:text-blue-300"
+              className="text-blue-400 hover:text-blue-300 text-sm"
             >
               Edit
             </button>
@@ -97,7 +94,7 @@ const LegacyCard = ({ id, title, content, image, preview }) => {
                   deleteFunFact(id);
                 }
               }}
-              className="text-red-400 hover:text-red-300"
+              className="text-red-400 hover:text-red-300 text-sm"
             >
               Delete
             </button>

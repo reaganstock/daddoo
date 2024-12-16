@@ -27,7 +27,7 @@ const TributeCard = ({ tribute, isEditable }) => {
         setIsEditing(false);
         toast.success('Tribute updated successfully!');
       } else {
-        toast.error('Failed to update tribute');
+        toast.error(result.error || 'Failed to update tribute');
       }
     } catch (error) {
       console.error('Error updating tribute:', error);
@@ -43,10 +43,15 @@ const TributeCard = ({ tribute, isEditable }) => {
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this tribute?')) {
-      const result = await deleteTribute(tribute.id);
-      if (result.success) {
-        toast.success('Tribute deleted successfully');
-      } else {
+      try {
+        const result = await deleteTribute(tribute.id);
+        if (result.success) {
+          toast.success('Tribute deleted successfully!');
+        } else {
+          toast.error(result.error || 'Failed to delete tribute');
+        }
+      } catch (error) {
+        console.error('Error deleting tribute:', error);
         toast.error('Failed to delete tribute');
       }
     }

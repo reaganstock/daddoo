@@ -25,6 +25,7 @@ const MemoryCard = ({ memory, isPreview }) => {
   const { deleteMemory, updateMemory } = useMemoryStore();
 
   React.useEffect(() => {
+    console.log('MemoryCard component mounted');
     if (!isPreview) {
       supabase.auth.getUser().then(({ data: { user } }) => {
         setCurrentUser(user);
@@ -32,7 +33,13 @@ const MemoryCard = ({ memory, isPreview }) => {
     }
   }, [isPreview]);
 
+  const isOwner = currentUser?.email === memory.user_email;
+
   const handleSave = async () => {
+    console.log('Attempting to save memory:', memory.id);
+    console.log('Current user:', currentUser?.email);
+    console.log('Memory owner:', memory.user_email);
+
     if (!editTitle.trim() || !editContent.trim()) {
       toast.error('Title and content are required');
       return;
@@ -46,6 +53,8 @@ const MemoryCard = ({ memory, isPreview }) => {
     });
     setIsLoading(false);
 
+    console.log('Update result:', result);
+
     if (result.success) {
       toast.success('Memory updated successfully');
       setIsEditing(false);
@@ -55,21 +64,24 @@ const MemoryCard = ({ memory, isPreview }) => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this memory?')) {
-      setIsLoading(true);
-      try {
-        const result = await deleteMemory(memory.id);
-        setIsLoading(false);
+    console.log('Attempting to delete memory:', memory.id);
+    console.log('Current user:', currentUser?.email);
+    console.log('Memory owner:', memory.user_email);
 
-        if (result.success) {
-          toast.success('Memory deleted successfully');
-        } else {
-          toast.error('Failed to delete memory');
-        }
-      } catch (error) {
-        setIsLoading(false);
-        toast.error('Failed to delete memory');
-      }
+    if (!window.confirm('Are you sure you want to delete this memory?')) {
+      return;
+    }
+
+    setIsLoading(true);
+    const result = await deleteMemory(memory.id);
+    setIsLoading(false);
+
+    console.log('Delete result:', result);
+
+    if (result.success) {
+      toast.success('Memory deleted successfully');
+    } else {
+      toast.error(result.error || 'Failed to delete memory');
     }
   };
 
@@ -102,43 +114,6 @@ const MemoryCard = ({ memory, isPreview }) => {
     );
   }
 
-  // Early return for preview mode
-  if (isPreview) {
-    return (
-      <Card>
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="text-xl font-bold text-white">{memory.title}</h3>
-        </div>
-        
-        <div className="flex flex-col md:flex-row gap-8">
-          {memory.image_url && (
-            <div className="w-full md:w-1/2 cursor-pointer" onClick={handleMediaClick}>
-              {memory.image_url.endsWith('.mp4') ? (
-                <video
-                  src={memory.image_url}
-                  controls
-                  className="rounded-lg shadow-xl w-full"
-                />
-              ) : (
-                <img
-                  src={memory.image_url}
-                  alt={memory.title}
-                  className="rounded-lg shadow-xl w-full"
-                />
-              )}
-            </div>
-          )}
-          <div className={`w-full ${memory.image_url ? 'md:w-1/2' : ''}`}>
-            <p className="text-gray-200 whitespace-pre-wrap">{memory.content}</p>
-            <div className="mt-4 text-gray-400">
-              <span>{formatDate(memory.created_at)}</span>
-            </div>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
   if (isEditing) {
     return (
       <Card>
@@ -147,29 +122,28 @@ const MemoryCard = ({ memory, isPreview }) => {
             type="text"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            className="w-full p-3 bg-gray-800/50 rounded-lg text-white"
-            placeholder="Title"
+            className="w-full p-2 bg-gray-800/50 rounded text-white text-xl"
+            placeholder="Memory Title"
             disabled={isLoading}
           />
           <textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full p-3 bg-gray-800/50 rounded-lg text-white"
-            rows="4"
-            placeholder="Content"
+            className="w-full p-2 bg-gray-800/50 rounded text-white min-h-[200px]"
+            placeholder="Memory Content"
             disabled={isLoading}
           />
-          <div className="flex justify-end gap-4">
+          <div className="flex justify-end space-x-2">
             <button
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 bg-gray-600 rounded-lg text-white hover:bg-gray-700 disabled:opacity-50"
+              className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-purple-600 rounded-lg text-white hover:bg-purple-700 disabled:opacity-50"
+              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save'}
@@ -182,54 +156,55 @@ const MemoryCard = ({ memory, isPreview }) => {
 
   return (
     <Card>
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-xl font-bold text-white">{memory.title}</h3>
-        {currentUser && currentUser.email === memory.user_email && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="text-blue-400 hover:text-blue-300 disabled:opacity-50"
-              disabled={isLoading}
-            >
-              Edit
-            </button>
-            <button
-              onClick={handleDelete}
-              className="text-red-400 hover:text-red-300 disabled:opacity-50"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
-        )}
-      </div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-start">
+          <h3 className="text-2xl font-playfair text-white">{memory.title}</h3>
+          {!isPreview && isOwner && (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="text-indigo-300 hover:text-indigo-200 transition-colors"
+                disabled={isLoading}
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                className="text-red-300 hover:text-red-200 transition-colors"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          )}
+        </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
+        <div className="text-gray-300 text-sm">
+          {formatDate(memory.created_at)}
+        </div>
+
         {memory.image_url && (
-          <div className="w-full md:w-1/2 cursor-pointer" onClick={handleMediaClick}>
+          <div 
+            className="cursor-pointer transform hover:scale-[1.02] transition-transform duration-300"
+            onClick={handleMediaClick}
+          >
             {memory.image_url.endsWith('.mp4') ? (
               <video
                 src={memory.image_url}
                 controls
-                className="rounded-lg shadow-xl w-full"
+                className="w-full rounded-lg shadow-xl"
               />
             ) : (
               <img
                 src={memory.image_url}
                 alt={memory.title}
-                className="rounded-lg shadow-xl w-full"
+                className="w-full rounded-lg shadow-xl"
               />
             )}
           </div>
         )}
-        <div className={`w-full ${memory.image_url ? 'md:w-1/2' : ''}`}>
-          <p className="text-gray-200 whitespace-pre-wrap">{memory.content}</p>
-          <div className="mt-4 text-gray-400">
-            <span>Added by {memory.user_email || 'Anonymous'}</span>
-            <span className="mx-2">•</span>
-            <span>{formatDate(memory.created_at)}</span>
-          </div>
-        </div>
+
+        <p className="text-gray-200 text-lg whitespace-pre-wrap">{memory.content}</p>
       </div>
     </Card>
   );

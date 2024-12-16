@@ -67,11 +67,6 @@ const AddTributeModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    if (!signaturePadRef.current || signaturePadRef.current.isEmpty()) {
-      toast.error('Please add your signature');
-      return;
-    }
-
     try {
       let audioUrl = null;
       let signatureUrl = null;
@@ -85,8 +80,10 @@ const AddTributeModal = ({ isOpen, onClose }) => {
         audioUrl = await base64Promise;
       }
 
-      // Convert signature to base64
-      signatureUrl = signaturePadRef.current.toDataURL();
+      // Only get signature if it's not empty
+      if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
+        signatureUrl = signaturePadRef.current.toDataURL();
+      }
 
       const tributeData = {
         id: uuidv4(),
@@ -191,8 +188,8 @@ const AddTributeModal = ({ isOpen, onClose }) => {
             )}
           </div>
 
-          <div>
-            <label className="block text-white mb-2">Your Signature</label>
+          <div className="mb-6">
+            <label className="block text-white mb-2">Your Signature (Optional)</label>
             <div className="bg-white rounded-lg overflow-hidden">
               <SignatureCanvas
                 ref={signaturePadRef}
