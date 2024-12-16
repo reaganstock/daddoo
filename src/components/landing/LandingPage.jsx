@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginModal from '../auth/LoginModal.tsx';
+import { supabase } from '../../lib/supabase';
 
 const LandingPage = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        window.location.href = '/celebration';
+      }
+    };
+    checkUser();
+  }, []);
 
   const handleEnter = () => {
     setIsLoginModalOpen(true);
