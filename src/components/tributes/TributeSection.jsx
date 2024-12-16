@@ -1,90 +1,67 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import TributeCard from './TributeCard';
 import AddTributeButton from './AddTributeButton';
-import useTributeStore from '../../store/tributeStore';
-import { useAnimation } from '../../hooks/useAnimation';
-import Section from '../ui/Section';
+import useSession from '../../hooks/useSession';
 import { supabase } from '../../lib/supabase';
+import Section from '../ui/Section';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 const TributeSection = ({ isPreview = false }) => {
-  const { tributes, loading, error, fetchTributes } = useTributeStore();
-  const [currentUser, setCurrentUser] = React.useState(null);
-  useAnimation();
+  const [tributes, setTributes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { data: { session } } = useSession();
+  const currentUser = session?.user;
 
   useEffect(() => {
     fetchTributes();
-    
-    if (!isPreview) {
-      supabase.auth.getUser().then(({ data: { user } }) => {
-        setCurrentUser(user);
-      });
+  }, []);
+
+  const fetchTributes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tributes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTributes(data || []);
+    } catch (error) {
+      console.error('Error fetching tributes:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
-  }, [fetchTributes, isPreview]);
-
-  const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-    width: '100%',
-    padding: '1rem',
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
-    borderRadius: '0.5rem',
-    minHeight: '200px',
-    position: 'relative',
-    zIndex: 10
   };
-
-  if (loading) {
-    return (
-      <Section id="tributes" title="Birthday Tributes">
-        <div className="w-full relative z-10">
-          <div style={containerStyle}>
-            <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
-            <div className="text-white">Loading tributes...</div>
-          </div>
-        </div>
-      </Section>
-    );
-  }
-
-  if (error) {
-    return (
-      <Section id="tributes" title="Birthday Tributes">
-        <div className="w-full relative z-10">
-          <div style={containerStyle}>
-            <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
-            <div className="text-red-500">{error}</div>
-          </div>
-        </div>
-      </Section>
-    );
-  }
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="w-full relative z-10">
-        <div style={containerStyle}>
-          <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
-          {loading ? (
-            <div className="text-white">Loading tributes...</div>
-          ) : error ? (
-            <div className="text-red-500">{error}</div>
-          ) : (
-            <>
-              <div className="flex flex-col gap-4 w-full">
-                {tributes.map((tribute, index) => (
-                  <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
-                    <TributeCard
-                      tribute={tribute}
-                      isEditable={!isPreview && currentUser?.id === tribute.user_id}
-                    />
-                  </div>
-                ))}
+      <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8" data-aos="fade-up">
+        {loading ? (
+          <div className="flex justify-center items-center py-8">
+            <LoadingSpinner />
+          </div>
+        ) : error ? (
+          <div className="text-red-500 text-center py-8">{error}</div>
+        ) : (
+          <div className="space-y-6">
+            <div className="grid gap-6">
+              {tributes.map((tribute) => (
+                <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
+                  <TributeCard
+                    tribute={tribute}
+                    isEditable={!isPreview && currentUser?.id === tribute.user_id}
+                  />
+                </div>
+              ))}
+            </div>
+            {!isPreview && currentUser && (
+              <div className="mt-8">
+                <AddTributeButton />
               </div>
-              {!isPreview && <AddTributeButton className="mt-4 w-full md:w-auto" />}
-            </>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </Section>
   );
