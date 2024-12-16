@@ -21,10 +21,24 @@ const TributeSection = ({ isPreview = false }) => {
     }
   }, [fetchTributes, isPreview]);
 
+  const containerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    width: '100%',
+    padding: '1rem',
+    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    borderRadius: '0.5rem',
+    minHeight: '200px',
+    position: 'relative',
+    zIndex: 10
+  };
+
   if (loading) {
     return (
       <Section id="tributes" title="Birthday Tributes">
-        <div className="flex justify-center items-center min-h-[50vh]">
+        <div style={containerStyle}>
+          <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
           <div className="text-white">Loading tributes...</div>
         </div>
       </Section>
@@ -34,8 +48,9 @@ const TributeSection = ({ isPreview = false }) => {
   if (error) {
     return (
       <Section id="tributes" title="Birthday Tributes">
-        <div className="flex justify-center items-center min-h-[50vh]">
-          <div className="text-red-400">Error loading tributes: {error}</div>
+        <div style={containerStyle}>
+          <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
+          <div className="text-red-500">{error}</div>
         </div>
       </Section>
     );
@@ -43,8 +58,9 @@ const TributeSection = ({ isPreview = false }) => {
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="max-w-4xl mx-auto">
-        <div className="space-y-8 mb-12">
+      <div style={containerStyle}>
+        <h2 className="text-2xl font-bold text-white mb-4">Tributes</h2>
+        <div className="flex flex-col gap-4 w-full">
           {tributes.map((tribute) => (
             <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
               <TributeCard
@@ -55,7 +71,7 @@ const TributeSection = ({ isPreview = false }) => {
           ))}
         </div>
         {!isPreview && currentUser && (
-          <div className="mt-12">
+          <div className="mt-4">
             <AddTributeButton />
           </div>
         )}
