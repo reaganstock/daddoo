@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
-export const LoginForm = () => {
+interface LoginFormProps {
+  onSuccess?: () => void;
+}
+
+const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -28,13 +32,16 @@ export const LoginForm = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`
         }
       })
       if (error) throw error
+      if (data && onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error:', error)
       setMessage('Error signing in with Google')
@@ -99,17 +106,14 @@ export const LoginForm = () => {
         >
           {loading ? 'Sending...' : 'Send Magic Link'}
         </button>
+        {message && (
+          <p className={`text-sm ${message.includes('Error') ? 'text-red-400' : 'text-green-400'}`}>
+            {message}
+          </p>
+        )}
       </form>
-
-      {message && (
-        <div className={`p-4 rounded-lg ${
-          message.includes('Error') 
-            ? 'bg-red-500/10 text-red-400'
-            : 'bg-green-500/10 text-green-400'
-        }`}>
-          {message}
-        </div>
-      )}
     </div>
   )
 }
+
+export default LoginForm

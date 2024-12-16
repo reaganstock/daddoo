@@ -1,27 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactModal from 'react-modal';
+import SignatureCanvas from 'react-signature-canvas';
+import { v4 as uuidv4 } from 'uuid';
 import useTributeStore from '../../store/tributeStore';
 import { supabase } from '../../lib/supabase';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 const AddTributeModal = ({ isOpen, onClose }) => {
-  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [author, setAuthor] = useState('');
+  const [title, setTitle] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
-  const signaturePadRef = useRef();
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
-  const addTribute = useTributeStore((state) => state.addTribute);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const signaturePadRef = useRef();
+  
+  const { addTribute } = useTributeStore();
 
-  React.useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setCurrentUser(user);
-    });
-  }, []);
+  const handleClose = () => {
+    setContent('');
+    setTitle('');
+    setAudioBlob(null);
+    if (signaturePadRef.current) {
+      signaturePadRef.current.clear();
+    }
+    onClose();
+  };
 
   const startRecording = async () => {
     try {
@@ -42,6 +48,7 @@ const AddTributeModal = ({ isOpen, onClose }) => {
       setIsRecording(true);
     } catch (err) {
       console.error('Error accessing microphone:', err);
+      toast.error('Error accessing microphone');
     }
   };
 
@@ -55,170 +62,176 @@ const AddTributeModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!title.trim()) {
-      toast.error('Please enter a title');
+    if (!content.trim() || !title.trim()) {
+      toast.error('Please fill in all required fields');
       return;
     }
 
-    if (!content.trim()) {
-      toast.error('Please enter your message');
+    if (!signaturePadRef.current || signaturePadRef.current.isEmpty()) {
+      toast.error('Please add your signature');
       return;
     }
 
-    if (!author.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-
-    setIsLoading(true);
     try {
-      const signature = signaturePadRef.current?.getTrimmedCanvas().toDataURL();
-      const audioUrl = audioBlob ? URL.createObjectURL(audioBlob) : null;
+      let audioUrl = null;
+      let signatureUrl = null;
 
-      const tribute = {
-        title: title.trim(),
-        content: content.trim(),
-        author: author.trim(),
-        signature,
-        audio: audioUrl,
-        created_at: new Date().toISOString(),
-        user_email: currentUser?.email
+      if (audioBlob) {
+        const reader = new FileReader();
+        const base64Promise = new Promise((resolve) => {
+          reader.onloadend = () => resolve(reader.result);
+        });
+        reader.readAsDataURL(audioBlob);
+        audioUrl = await base64Promise;
+      }
+
+      // Convert signature to base64
+      signatureUrl = signaturePadRef.current.toDataURL();
+
+      const tributeData = {
+        id: uuidv4(),
+        title,
+        content,
+        audio_url: audioUrl,
+        signature_url: signatureUrl,
       };
 
-      const result = await addTribute(tribute);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to add tribute');
+      const result = await addTribute(tributeData);
+      
+      if (result.success) {
+        toast.success('Tribute added successfully!');
+        handleClose();
+      } else {
+        toast.error(result.error || 'Failed to add tribute');
       }
-
-      toast.success('Tribute added successfully');
-      setTitle('');
-      setContent('');
-      setAuthor('');
-      setAudioBlob(null);
-      if (signaturePadRef.current) {
-        signaturePadRef.current.clear();
-      }
-      onClose();
     } catch (error) {
-      console.error('Error adding tribute:', error);
-      toast.error(error.message || 'Failed to add tribute');
-    } finally {
-      setIsLoading(false);
+      console.error('Error saving tribute:', error);
+      toast.error('Error saving tribute');
     }
   };
 
   return (
     <ReactModal
       isOpen={isOpen}
-      onRequestClose={onClose}
-      className="max-w-4xl mx-auto mt-10 bg-gray-900/95 p-12 rounded-lg outline-none"
-      overlayClassName="fixed inset-0 bg-black/75 flex items-center justify-center"
+      onRequestClose={handleClose}
+      className="max-w-2xl w-full mx-auto mt-20 bg-gray-900 rounded-lg p-6 border border-gray-700"
+      overlayClassName="fixed inset-0 bg-black/75 flex items-start justify-center"
     >
-      <h2 className="text-4xl font-bold text-white mb-8 text-center">Add a Birthday Tribute</h2>
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div>
-          <label className="block text-white text-xl mb-3">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
-            placeholder="Enter a title for your tribute"
-            required
-          />
-        </div>
+      <div className="relative">
+        <button
+          onClick={handleClose}
+          className="absolute -top-2 -right-2 text-white/60 hover:text-white/90 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
 
-        <div>
-          <label className="block text-white text-xl mb-3">Your Name</label>
-          <input
-            type="text"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
-            required
-          />
-        </div>
+        <h2 className="text-2xl font-bold text-white mb-6">Add New Tribute</h2>
 
-        <div>
-          <label className="block text-white text-xl mb-3">Your Message</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
-            rows="8"
-            placeholder="Write your birthday message here..."
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-white mb-2">Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              placeholder="Enter title"
+              required
+            />
+          </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            {!isRecording ? (
+          <div>
+            <label className="block text-white mb-2">Content</label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 min-h-[200px]"
+              placeholder="Write your tribute..."
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-white mb-2">Audio Message (Optional)</label>
+            {!audioBlob && !isRecording && (
               <button
                 type="button"
                 onClick={startRecording}
-                className="px-4 py-2 bg-gray-800/50 rounded-lg text-white hover:bg-gray-700/50"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
-                🎤 Add Voice Message
+                Start Recording
               </button>
-            ) : (
+            )}
+            {isRecording && (
               <button
                 type="button"
                 onClick={stopRecording}
-                className="px-4 py-2 bg-red-600/50 rounded-lg text-white hover:bg-red-700/50 animate-pulse"
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
               >
-                ⏹️ Stop Recording
+                Stop Recording
               </button>
             )}
-            {audioBlob && (
-              <audio src={URL.createObjectURL(audioBlob)} controls className="flex-1 bg-transparent" />
+            {audioBlob && !isRecording && (
+              <div className="space-y-2">
+                <AudioPlayer
+                  src={URL.createObjectURL(audioBlob)}
+                  customAdditionalControls={[]}
+                  className="rounded-lg overflow-hidden bg-white/5"
+                />
+                <button
+                  type="button"
+                  onClick={() => setAudioBlob(null)}
+                  className="text-red-400 hover:text-red-300 text-sm"
+                >
+                  Remove Recording
+                </button>
+              </div>
             )}
           </div>
-        </div>
 
-        <div>
-          <label className="block text-white text-xl mb-3">Your Signature</label>
-          <div className="bg-transparent rounded-lg">
-            <SignatureCanvas
-              ref={signaturePadRef}
-              canvasProps={{
-                className: "w-full h-40 rounded-lg",
-                style: { 
-                  background: 'transparent',
-                  border: '1px solid rgba(255,255,255,0.2)'
-                }
-              }}
-              backgroundColor="rgba(0,0,0,0)"
-            />
+          <div>
+            <label className="block text-white mb-2">Your Signature</label>
+            <div className="bg-white rounded-lg overflow-hidden">
+              <SignatureCanvas
+                ref={signaturePadRef}
+                canvasProps={{
+                  className: 'w-full',
+                  style: { 
+                    width: '100%', 
+                    height: '200px',
+                    backgroundColor: 'white'
+                  }
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => signaturePadRef.current?.clear()}
+              className="mt-2 text-sm text-blue-400 hover:text-blue-300"
+            >
+              Clear Signature
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => signaturePadRef.current?.clear()}
-            className="mt-2 px-4 py-2 bg-gray-800/50 rounded-lg text-white text-sm hover:bg-gray-700/50"
-          >
-            Clear Signature
-          </button>
-        </div>
 
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Adding...' : 'Add Tribute'}
-          </button>
-        </div>
-      </form>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Add Tribute
+            </button>
+          </div>
+        </form>
+      </div>
     </ReactModal>
   );
 };

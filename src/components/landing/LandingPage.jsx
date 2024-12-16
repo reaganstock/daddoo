@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { LoginModal } from '../Auth/LoginModal';
+import LoginModal from '../auth/LoginModal.tsx';
 
 const LandingPage = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleEnter = () => {
     setIsLoginModalOpen(true);
+  };
+
+  const handlePreview = () => {
+    window.location.href = '/preview';
+  };
+
+  const handleLoginSuccess = () => {
+    window.location.href = '/celebration';
   };
 
   return (
@@ -24,15 +32,24 @@ const LandingPage = () => {
         <p className="text-xl md:text-2xl text-white/90 mb-12">
           Join us in celebrating his birthday - a day filled with memories, laughter, and love.
         </p>
-        <button
-          onClick={handleEnter}
-          className="px-8 py-4 bg-purple-600 text-xl text-white rounded-lg hover:bg-purple-700 transition-colors"
-        >
-          Enter Celebration
-        </button>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button
+            onClick={handleEnter}
+            className="px-8 py-4 bg-purple-600 text-xl text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Enter Celebration
+          </button>
+          <button
+            onClick={handlePreview}
+            className="px-8 py-4 bg-indigo-600 text-xl text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            See Preview
+          </button>
+        </div>
         <LoginModal
           isOpen={isLoginModalOpen}
           onRequestClose={() => setIsLoginModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess}
         />
       </div>
     </div>

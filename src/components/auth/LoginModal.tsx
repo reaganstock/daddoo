@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from 'react-modal';
-import { LoginForm } from './LoginForm';
+import LoginForm from './LoginForm';
 
 const customStyles = {
   content: {
@@ -30,9 +30,17 @@ Modal.setAppElement('#root'); // Set this to your root element id
 interface LoginModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
+  onLoginSuccess?: () => void;
 }
 
-export const LoginModal = ({ isOpen, onRequestClose }: LoginModalProps) => {
+const LoginModal = ({ isOpen, onRequestClose, onLoginSuccess }: LoginModalProps) => {
+  const handleLoginSuccess = () => {
+    if (onLoginSuccess) {
+      onLoginSuccess();
+    }
+    onRequestClose();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -53,8 +61,10 @@ export const LoginModal = ({ isOpen, onRequestClose }: LoginModalProps) => {
           <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
           <p className="text-white/60">Sign in to continue to the celebration</p>
         </div>
-        <LoginForm />
+        <LoginForm onSuccess={handleLoginSuccess} />
       </div>
     </Modal>
   );
 };
+
+export default LoginModal;

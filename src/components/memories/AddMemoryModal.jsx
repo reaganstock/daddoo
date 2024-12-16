@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 const AddMemoryModal = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const addMemory = useMemoryStore((state) => state.addMemory);
   const [currentUser, setCurrentUser] = useState(null);
@@ -18,7 +18,7 @@ const AddMemoryModal = ({ isOpen, onClose }) => {
     });
   }, []);
 
-  const handleImageSelect = async (event) => {
+  const handleImageSelect = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -34,35 +34,27 @@ const AddMemoryModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    setImage(file);
-  };
-
-  const uploadImage = async (file) => {
-    try {
-      // Upload image to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('memories')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('memories')
-        .getPublicUrl(fileName);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      throw new Error('Failed to upload image');
-    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result);
+      toast.success('Image uploaded successfully');
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!title.trim()) {
+      toast.error('Please enter a title');
+      return;
+    }
+
+    if (!content.trim()) {
+      toast.error('Please enter some content');
+      return;
+    }
+
     if (!image) {
       toast.error('Please select an image');
       return;
@@ -70,13 +62,10 @@ const AddMemoryModal = ({ isOpen, onClose }) => {
 
     setIsLoading(true);
     try {
-      // Upload image first
-      const imageUrl = await uploadImage(image);
-
       const memory = {
-        title: title || 'Memory',
-        content: content || '',
-        image_url: imageUrl,
+        title: title.trim(),
+        content: content.trim(),
+        image_url: image,
         created_at: new Date().toISOString(),
         user_email: currentUser?.email
       };
@@ -89,7 +78,7 @@ const AddMemoryModal = ({ isOpen, onClose }) => {
       toast.success('Memory added successfully');
       setTitle('');
       setContent('');
-      setImage(null);
+      setImage('');
       onClose();
     } catch (error) {
       console.error('Error adding memory:', error);
@@ -109,59 +98,58 @@ const AddMemoryModal = ({ isOpen, onClose }) => {
       <h2 className="text-4xl font-bold text-white mb-8 text-center">Add a Memory</h2>
       <form onSubmit={handleSubmit} className="space-y-8">
         <div>
-          <label className="block text-white text-xl mb-3">Title (Optional)</label>
+          <label className="block text-white text-xl mb-3">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
+            className="w-full p-4 bg-white/10 rounded-lg text-white text-lg"
             placeholder="Enter a title for your memory"
+            disabled={isLoading}
+            required
           />
         </div>
-
         <div>
-          <label className="block text-white text-xl mb-3">Description (Optional)</label>
+          <label className="block text-white text-xl mb-3">Content</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg"
+            className="w-full p-4 bg-white/10 rounded-lg text-white text-lg"
+            placeholder="Share your memory..."
             rows="4"
-            placeholder="Add a description..."
+            disabled={isLoading}
+            required
           />
         </div>
-
         <div>
-          <label className="block text-white text-xl mb-3">Image</label>
+          <label className="block text-white text-xl mb-3">Photo</label>
           <input
             type="file"
             accept="image/*"
             onChange={handleImageSelect}
-            className="w-full p-4 bg-gray-800/50 rounded-lg text-white text-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-500"
-            required
+            className="w-full text-white"
+            disabled={isLoading}
           />
           {image && (
-            <div className="mt-4">
-              <img
-                src={URL.createObjectURL(image)}
-                alt="Preview"
-                className="max-h-48 rounded-lg"
-              />
-            </div>
+            <img
+              src={image}
+              alt="Preview"
+              className="mt-2 w-full h-48 object-cover rounded-lg"
+            />
           )}
         </div>
-
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end gap-4">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
             disabled={isLoading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
             disabled={isLoading}
           >
             {isLoading ? 'Adding...' : 'Add Memory'}

@@ -10,7 +10,7 @@ interface PreviewState {
 export const usePreviewStore = create<PreviewState>()(
   persist(
     (set) => ({
-      hasAccess: false,
+      hasAccess: true, // Always grant access for the preview page
       checkCode: (code: string) => {
         const isValid = code.toUpperCase() === 'DADDOO';
         if (isValid) {

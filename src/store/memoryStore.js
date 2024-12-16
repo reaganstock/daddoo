@@ -8,22 +8,25 @@ const useMemoryStore = create(
       memories: [],
       loading: false,
       error: null,
+
       fetchMemories: async () => {
         set({ loading: true });
         try {
           const { data, error } = await supabase
             .from('memories')
             .select('*')
-            .eq('is_deleted', false)
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          set({ memories: data || [], loading: false, error: null });
+          set({ memories: data || [], error: null });
         } catch (error) {
           console.error('Error fetching memories:', error);
-          set({ error: error.message, loading: false });
+          set({ error: error.message });
+        } finally {
+          set({ loading: false });
         }
       },
+
       addMemory: async (memory) => {
         try {
           const { data: userData } = await supabase.auth.getUser();
@@ -32,33 +35,31 @@ const useMemoryStore = create(
           }
 
           const newMemory = {
-            title: memory.title,
-            content: memory.content,
-            image_url: memory.image_url,
+            ...memory,
             user_id: userData.user.id,
-            user_email: userData.user.email,
             created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            is_deleted: false
+            updated_at: new Date().toISOString()
           };
-          
-          const { data, error } = await supabase
+
+          // First update local state
+          set(state => ({ 
+            memories: [newMemory, ...state.memories],
+            error: null 
+          }));
+
+          // Then update database
+          const { error } = await supabase
             .from('memories')
-            .insert([newMemory])
-            .select()
-            .single();
+            .insert([newMemory]);
 
           if (error) throw error;
-
-          set((state) => ({
-            memories: [data, ...state.memories]
-          }));
           return { success: true };
         } catch (error) {
           console.error('Error adding memory:', error);
           return { success: false, error: error.message };
         }
       },
+
       updateMemory: async (id, updates) => {
         try {
           const { data: userData } = await supabase.auth.getUser();
@@ -66,42 +67,32 @@ const useMemoryStore = create(
             throw new Error('You must be logged in to update a memory');
           }
 
-          // First check if the user owns this memory
-          const { data: memoryData, error: fetchError } = await supabase
-            .from('memories')
-            .select('user_email')
-            .eq('id', id)
-            .single();
+          // First update local state
+          set(state => ({
+            memories: state.memories.map(memory =>
+              memory.id === id ? { ...memory, ...updates } : memory
+            ),
+            error: null
+          }));
 
-          if (fetchError) throw fetchError;
-
-          if (memoryData.user_email !== userData.user.email) {
-            throw new Error('You do not have permission to update this memory');
-          }
-
-          const { data, error } = await supabase
+          // Then update database
+          const { error } = await supabase
             .from('memories')
             .update({
               ...updates,
               updated_at: new Date().toISOString()
             })
             .eq('id', id)
-            .select()
-            .single();
+            .eq('user_id', userData.user.id);
 
           if (error) throw error;
-
-          set((state) => ({
-            memories: state.memories.map(memory =>
-              memory.id === id ? { ...memory, ...data } : memory
-            )
-          }));
           return { success: true };
         } catch (error) {
           console.error('Error updating memory:', error);
           return { success: false, error: error.message };
         }
       },
+
       deleteMemory: async (id) => {
         try {
           const { data: userData } = await supabase.auth.getUser();
@@ -109,32 +100,21 @@ const useMemoryStore = create(
             throw new Error('You must be logged in to delete a memory');
           }
 
-          // First check if the user owns this memory
-          const { data: memoryData, error: fetchError } = await supabase
-            .from('memories')
-            .select('user_email')
-            .eq('id', id)
-            .single();
-
-          if (fetchError) throw fetchError;
-
-          if (memoryData.user_email !== userData.user.email) {
-            throw new Error('You do not have permission to delete this memory');
-          }
-
+          // Delete from database first
           const { error } = await supabase
             .from('memories')
-            .update({ 
-              is_deleted: true,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', id);
+            .delete()
+            .eq('id', id)
+            .eq('user_id', userData.user.id);
 
           if (error) throw error;
 
-          set((state) => ({
-            memories: state.memories.filter(memory => memory.id !== id)
+          // Then update local state
+          set(state => ({
+            memories: state.memories.filter(memory => memory.id !== id),
+            error: null
           }));
+
           return { success: true };
         } catch (error) {
           console.error('Error deleting memory:', error);

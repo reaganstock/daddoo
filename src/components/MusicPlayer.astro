@@ -1,4 +1,5 @@
 ---
+import { useEffect } from 'react';
 ---
 <div class="fixed bottom-4 right-4 z-50">
   <audio id="bgMusic" preload="none">
@@ -6,19 +7,86 @@
   </audio>
   <button
     id="musicToggle"
-    class="bg-white/10 backdrop-blur-md p-4 rounded-full shadow-xl hover:bg-white/20 transition-all duration-300"
+    class="bg-white/10 backdrop-blur-md p-4 rounded-full shadow-xl hover:bg-white/20 transition-all duration-300 group"
     aria-label="Toggle Music"
   >
-    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-    </svg>
+    <div class="relative">
+      <svg id="playIcon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+      </svg>
+      <svg id="pauseIcon" class="hidden w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 15.536L2.404 2.404M2.404 21.596L15.536 8.464"/>
+      </svg>
+    </div>
+    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-black/75 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+      <span id="musicStatus">Play Music</span>
+    </span>
   </button>
 </div>
 
+<div id="confetti-container"></div>
+
 <script>
+  import confetti from 'canvas-confetti';
+
   let isPlaying = false;
   const audio = document.getElementById('bgMusic');
   const musicToggle = document.getElementById('musicToggle');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+  const musicStatus = document.getElementById('musicStatus');
+
+  // Start confetti on page load
+  const duration = 5 * 1000;
+  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+  const animationEnd = Date.now() + duration;
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  const interval = setInterval(function() {
+    const timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
+    }
+
+    const particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+    }));
+    confetti(Object.assign({}, defaults, {
+      particleCount,
+      origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+    }));
+  }, 250);
+
+  // Auto-play music on page load
+  if (audio) {
+    audio.play().catch((error) => {
+      console.log('Autoplay prevented');
+    });
+    isPlaying = true;
+    updateMusicUI();
+  }
+
+  function updateMusicUI() {
+    if (playIcon && pauseIcon && musicStatus) {
+      if (isPlaying) {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+        musicStatus.textContent = 'Pause Music';
+        musicToggle?.classList.add('bg-purple-500/50');
+      } else {
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+        musicStatus.textContent = 'Play Music';
+        musicToggle?.classList.remove('bg-purple-500/50');
+      }
+    }
+  }
 
   if (musicToggle && audio) {
     musicToggle.addEventListener('click', () => {
@@ -28,7 +96,18 @@
         audio.play();
       }
       isPlaying = !isPlaying;
-      musicToggle.classList.toggle('bg-purple-500/50');
+      updateMusicUI();
+    });
+
+    audio.addEventListener('ended', () => {
+      isPlaying = false;
+      updateMusicUI();
     });
   }
 </script>
+
+<style>
+  .group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+  }
+</style>

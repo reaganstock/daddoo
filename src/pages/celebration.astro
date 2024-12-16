@@ -10,6 +10,7 @@ import MemorySection from '../components/memories/MemorySection';
 import FunFactsContainer from '../components/fun-facts/FunFactsContainer';
 import MusicPlayer from '../components/MusicPlayer.astro';
 import { ProtectedRoute } from '../components/Auth/ProtectedRoute';
+import PreviewButton from '../components/ui/PreviewButton';
 
 const memories = [
   {
@@ -50,28 +51,31 @@ const memories = [
 ];
 ---
 
-<Layout title="Happy Birthday to this Guy!">
-  <main class="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
-    <Header client:load />
-    <HeroSection />
-    <div class="container mx-auto px-4 py-12 max-w-7xl">
-      <NormQuote />
-      <BirthdayCountdown />
-      <SectionNav client:load />
-      <ProtectedRoute client:load>
-        <div id="tributes" class="section-content block">
-          <TributeSection client:load />
+<Layout title="Celebrating Trey Stock">
+  <div class="relative min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-blue-900">
+    <ProtectedRoute client:load>
+      <PreviewButton client:load />
+      <Header client:load />
+      <main class="container mx-auto px-4 py-8">
+        <HeroSection />
+        <div class="container mx-auto px-4 py-12 max-w-7xl">
+          <NormQuote />
+          <BirthdayCountdown />
+          <SectionNav client:load />
+          <div id="tributes" class="section-content block">
+            <TributeSection client:load />
+          </div>
+          <div id="memories" class="section-content block">
+            <MemorySection client:load defaultMemories={memories} />
+          </div>
+          <div id="funfacts" class="section-content block">
+            <FunFactsContainer client:load />
+          </div>
         </div>
-        <div id="memories" class="section-content block">
-          <MemorySection client:load defaultMemories={memories} />
-        </div>
-        <div id="funfacts" class="section-content block">
-          <FunFactsContainer client:load />
-        </div>
-      </ProtectedRoute>
-    </div>
-    <MusicPlayer />
-  </main>
+        <MusicPlayer />
+      </main>
+    </ProtectedRoute>
+  </div>
 </Layout>
 
 <style>

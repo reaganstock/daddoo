@@ -50,12 +50,12 @@ const TributeSection = ({ isPreview = false }) => {
             />
           </div>
         ))}
+        {!isPreview && currentUser && (
+          <div className="mt-12">
+            <AddTributeButton />
+          </div>
+        )}
       </div>
-      {!isPreview && currentUser && (
-        <div className="mt-12">
-          <AddTributeButton />
-        </div>
-      )}
     </Section>
   );
 };

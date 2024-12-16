@@ -55,18 +55,21 @@ const MemoryCard = ({ memory, isPreview }) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this memory?')) {
-      return;
-    }
+    if (window.confirm('Are you sure you want to delete this memory?')) {
+      setIsLoading(true);
+      try {
+        const result = await deleteMemory(memory.id);
+        setIsLoading(false);
 
-    setIsLoading(true);
-    const result = await deleteMemory(memory.id);
-    setIsLoading(false);
-
-    if (result.success) {
-      toast.success('Memory deleted successfully');
-    } else {
-      toast.error(result.error || 'Failed to delete memory');
+        if (result.success) {
+          toast.success('Memory deleted successfully');
+        } else {
+          toast.error('Failed to delete memory');
+        }
+      } catch (error) {
+        setIsLoading(false);
+        toast.error('Failed to delete memory');
+      }
     }
   };
 
