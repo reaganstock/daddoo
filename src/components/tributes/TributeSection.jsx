@@ -41,8 +41,8 @@ const TributeSection = ({ isPreview = false }) => {
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="relative h-full overflow-y-auto">
-        <div className="space-y-8 max-w-4xl mx-auto pb-32">
+      <div className="h-[calc(100vh-200px)] overflow-y-auto">
+        <div className="space-y-8 max-w-4xl mx-auto pb-40">
           <div className="space-y-6">
             {tributes.map((tribute) => (
               <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
@@ -54,8 +54,10 @@ const TributeSection = ({ isPreview = false }) => {
             ))}
           </div>
           {!isPreview && currentUser && (
-            <div className="mt-12 sticky bottom-4 bg-gradient-to-t from-black via-black/80 to-transparent pt-8 pb-4">
-              <AddTributeButton />
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/80 to-transparent">
+              <div className="max-w-4xl mx-auto">
+                <AddTributeButton />
+              </div>
             </div>
           )}
         </div>

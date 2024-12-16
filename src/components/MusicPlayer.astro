@@ -12,10 +12,11 @@ import { useEffect } from 'react';
   >
     <div class="relative">
       <svg id="playIcon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <svg id="pauseIcon" class="hidden w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h4v16H6zM14 4h4v16h-4z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     </div>
     <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-black/75 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
@@ -58,11 +59,9 @@ import { useEffect } from 'react';
         if (modalOverlay && musicToggle) {
           const isModalOpen = modalOverlay.classList.contains('ReactModal__Overlay--after-open');
           if (isModalOpen) {
-            musicToggle.style.opacity = '0';
-            musicToggle.style.pointerEvents = 'none';
+            musicToggle.style.display = 'none';
           } else {
-            musicToggle.style.opacity = '1';
-            musicToggle.style.pointerEvents = 'auto';
+            musicToggle.style.display = 'block';
           }
         }
       }
@@ -96,7 +95,8 @@ import { useEffect } from 'react';
   document.addEventListener('touchstart', attemptAutoPlay, { once: true });
 
   if (musicToggle && audio) {
-    musicToggle.addEventListener('click', () => {
+    musicToggle.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent triggering auto-play
       if (isPlaying) {
         audio.pause();
       } else {
