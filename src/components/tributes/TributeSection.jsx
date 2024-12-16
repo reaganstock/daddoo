@@ -41,7 +41,20 @@ const TributeSection = ({ isPreview = false }) => {
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="space-y-12 max-w-4xl mx-auto">
+      <div className="space-y-12 max-w-4xl mx-auto px-4 md:px-0">
+        {/* Show add tribute button first on mobile */}
+        <div className="block md:hidden">
+          <AddTributeButton />
+        </div>
+        
+        {/* Desktop add tribute button */}
+        {!isPreview && (
+          <div className="hidden md:block">
+            <AddTributeButton />
+          </div>
+        )}
+
+        {/* Tributes list */}
         {tributes.map((tribute) => (
           <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
             <TributeCard
@@ -50,11 +63,6 @@ const TributeSection = ({ isPreview = false }) => {
             />
           </div>
         ))}
-        {!isPreview && currentUser && (
-          <div className="mt-12">
-            <AddTributeButton />
-          </div>
-        )}
       </div>
     </Section>
   );
