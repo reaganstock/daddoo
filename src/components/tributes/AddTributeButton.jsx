@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AddTributeModal from './AddTributeModal';
 
-const AddTributeButton = ({ className }) => {
+const AddTributeButton = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

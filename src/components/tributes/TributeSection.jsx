@@ -39,15 +39,15 @@ const TributeSection = ({ isPreview = false }) => {
 
   return (
     <Section id="tributes" title="Birthday Tributes">
-      <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8" data-aos="fade-up">
-        {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <LoadingSpinner />
-          </div>
-        ) : error ? (
-          <div className="text-red-500 text-center py-8">{error}</div>
-        ) : (
-          <div className="space-y-6">
+      <div className="space-y-6">
+        <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-xl p-8" data-aos="fade-up">
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : error ? (
+            <div className="text-red-500 text-center py-8">{error}</div>
+          ) : (
             <div className="grid gap-6">
               {tributes.map((tribute) => (
                 <div key={tribute.id} className="transform hover:scale-[1.02] transition-transform duration-300">
@@ -58,11 +58,11 @@ const TributeSection = ({ isPreview = false }) => {
                 </div>
               ))}
             </div>
-            {!isPreview && currentUser && (
-              <div className="mt-8">
-                <AddTributeButton />
-              </div>
-            )}
+          )}
+        </div>
+        {!isPreview && currentUser && (
+          <div className="mt-8">
+            <AddTributeButton />
           </div>
         )}
       </div>
