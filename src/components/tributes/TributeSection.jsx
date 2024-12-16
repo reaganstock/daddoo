@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TributeCard from './TributeCard';
 import AddTributeButton from './AddTributeButton';
-import useSession from '../../hooks/useSession';
 import { supabase } from '../../lib/supabase';
 import Section from '../ui/Section';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -10,12 +9,16 @@ const TributeSection = ({ isPreview = false }) => {
   const [tributes, setTributes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { data: { session } } = useSession();
-  const currentUser = session?.user;
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     fetchTributes();
-  }, []);
+    if (!isPreview) {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        setCurrentUser(user);
+      });
+    }
+  }, [isPreview]);
 
   const fetchTributes = async () => {
     try {
