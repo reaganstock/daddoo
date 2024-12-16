@@ -10,30 +10,38 @@ import 'react-h5-audio-player/lib/styles.css';
 
 const modalStyles = {
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
+    position: 'relative',
+    top: '0',
+    left: '0',
+    right: '0',
+    bottom: '0',
     backgroundColor: 'rgba(17, 24, 39, 0.95)',
     borderRadius: '1rem',
     padding: '2rem',
     maxWidth: '40rem',
     width: '90%',
     maxHeight: '90vh',
-    overflow: 'auto',
+    overflowY: 'auto',
+    msOverflowStyle: 'none',
+    scrollbarWidth: 'none',
     border: 'none',
+    margin: '2rem auto',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    WebkitOverflowScrolling: 'touch'
+    WebkitOverflowScrolling: 'touch',
+    '&::-webkit-scrollbar': {
+      display: 'none'
+    }
   },
   overlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     zIndex: 1000,
-    overflow: 'auto',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+    overflowY: 'auto',
+    display: 'block'
   }
 };
 
