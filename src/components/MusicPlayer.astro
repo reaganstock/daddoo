@@ -2,7 +2,7 @@
 ---
 
 <div class="fixed bottom-4 right-4 z-50">
-  <audio id="bgMusic" preload="auto" autoplay>
+  <audio id="bgMusic" preload="auto">
     <source src="https://archive.org/download/frank-sinatra-the-very-best-of/The%20Very%20Best%20Of%20Frank%20Sinatra/1-01%20Stardust.mp3" type="audio/mp3">
   </audio>
   <button
@@ -11,16 +11,15 @@
     aria-label="Toggle Music"
   >
     <div class="relative">
-      <svg id="playIcon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <svg id="playIcon" class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/>
       </svg>
-      <svg id="pauseIcon" class="hidden w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <svg id="pauseIcon" class="hidden w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
       </svg>
     </div>
     <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-black/75 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-      <span id="musicStatus">Pause Music</span>
+      <span id="musicStatus">Play Music</span>
     </span>
   </button>
 </div>
@@ -30,29 +29,12 @@
 <script>
   import confetti from 'canvas-confetti';
 
-  let isPlaying = true;
+  let isPlaying = false;
   const audio = document.getElementById('bgMusic');
   const musicToggle = document.getElementById('musicToggle');
   const playIcon = document.getElementById('playIcon');
   const pauseIcon = document.getElementById('pauseIcon');
   const musicStatus = document.getElementById('musicStatus');
-
-  // Initialize UI to show pause state since we're auto-playing
-  if (playIcon && pauseIcon && musicStatus) {
-    playIcon.classList.add('hidden');
-    pauseIcon.classList.remove('hidden');
-    musicStatus.textContent = 'Pause Music';
-    musicToggle?.classList.add('bg-purple-500/50');
-  }
-
-  // Handle autoplay failure
-  if (audio) {
-    audio.play().catch((error) => {
-      console.log('Autoplay prevented');
-      isPlaying = false;
-      updateMusicUI();
-    });
-  }
 
   function updateMusicUI() {
     if (playIcon && pauseIcon && musicStatus) {
@@ -75,39 +57,35 @@
       if (isPlaying) {
         audio.pause();
       } else {
-        audio.play();
+        audio.play().catch(error => {
+          console.error('Error playing audio:', error);
+        });
       }
       isPlaying = !isPlaying;
       updateMusicUI();
     });
+
+    // Update UI when audio naturally ends
+    audio.addEventListener('ended', () => {
+      isPlaying = false;
+      updateMusicUI();
+    });
+
+    // Update UI when audio is paused
+    audio.addEventListener('pause', () => {
+      isPlaying = false;
+      updateMusicUI();
+    });
+
+    // Update UI when audio starts playing
+    audio.addEventListener('play', () => {
+      isPlaying = true;
+      updateMusicUI();
+    });
   }
 
-  // Start confetti on page load
-  const duration = 5 * 1000;
-  const animationEnd = Date.now() + duration;
-  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-  function randomInRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  const interval = setInterval(function() {
-    const timeLeft = animationEnd - Date.now();
-
-    if (timeLeft <= 0) {
-      return clearInterval(interval);
-    }
-
-    const particleCount = 50 * (timeLeft / duration);
-    confetti(Object.assign({}, defaults, {
-      particleCount,
-      origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-    }));
-    confetti(Object.assign({}, defaults, {
-      particleCount,
-      origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-    }));
-  }, 250);
+  // Initialize UI
+  updateMusicUI();
 </script>
 
 <style>
